@@ -14,7 +14,164 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      daily_progress: {
+        Row: {
+          completed_exercises: number | null
+          completion_date: string | null
+          created_at: string
+          day_number: number
+          id: string
+          is_day_completed: boolean | null
+          notes: string | null
+          updated_at: string
+          user_id: string
+          weight_check: number | null
+        }
+        Insert: {
+          completed_exercises?: number | null
+          completion_date?: string | null
+          created_at?: string
+          day_number: number
+          id?: string
+          is_day_completed?: boolean | null
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+          weight_check?: number | null
+        }
+        Update: {
+          completed_exercises?: number | null
+          completion_date?: string | null
+          created_at?: string
+          day_number?: number
+          id?: string
+          is_day_completed?: boolean | null
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+          weight_check?: number | null
+        }
+        Relationships: []
+      }
+      exercise_completions: {
+        Row: {
+          completed_at: string
+          day_number: number
+          exercise_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          day_number: number
+          exercise_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          day_number?: number
+          exercise_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_completions_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exercises: {
+        Row: {
+          calories_estimate: number | null
+          created_at: string
+          day_number: number
+          description: string
+          difficulty_level: number | null
+          duration_minutes: number
+          exercise_order: number
+          id: string
+          instructions: string
+          title: string
+          updated_at: string
+          youtube_video_id: string | null
+        }
+        Insert: {
+          calories_estimate?: number | null
+          created_at?: string
+          day_number: number
+          description: string
+          difficulty_level?: number | null
+          duration_minutes?: number
+          exercise_order: number
+          id?: string
+          instructions: string
+          title: string
+          updated_at?: string
+          youtube_video_id?: string | null
+        }
+        Update: {
+          calories_estimate?: number | null
+          created_at?: string
+          day_number?: number
+          description?: string
+          difficulty_level?: number | null
+          duration_minutes?: number
+          exercise_order?: number
+          id?: string
+          instructions?: string
+          title?: string
+          updated_at?: string
+          youtube_video_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          age: number
+          created_at: string
+          current_bmi: number
+          goal_type: Database["public"]["Enums"]["goal_type"]
+          height: number
+          id: string
+          name: string
+          program_start_date: string | null
+          updated_at: string
+          user_id: string
+          weight: number
+        }
+        Insert: {
+          age: number
+          created_at?: string
+          current_bmi: number
+          goal_type?: Database["public"]["Enums"]["goal_type"]
+          height: number
+          id?: string
+          name: string
+          program_start_date?: string | null
+          updated_at?: string
+          user_id: string
+          weight: number
+        }
+        Update: {
+          age?: number
+          created_at?: string
+          current_bmi?: number
+          goal_type?: Database["public"]["Enums"]["goal_type"]
+          height?: number
+          id?: string
+          name?: string
+          program_start_date?: string | null
+          updated_at?: string
+          user_id?: string
+          weight?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +180,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      goal_type: "maintain_weight" | "lose_weight" | "bariatric_prep"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +307,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      goal_type: ["maintain_weight", "lose_weight", "bariatric_prep"],
+    },
   },
 } as const
