@@ -17,8 +17,8 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
     queryFn: async () => {
       if (!user) return false;
       
-      // Use the has_role function instead of querying user_roles directly
-      const { data, error } = await supabase.rpc('has_role', {
+      // Use the has_role function with type assertion
+      const { data, error } = await (supabase.rpc as any)('has_role', {
         _user_id: user.id,
         _role: 'admin'
       });

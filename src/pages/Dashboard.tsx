@@ -43,13 +43,13 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check if user is admin using the has_role function
+  // Check if user is admin using the has_role function with type assertion
   const { data: isAdmin } = useQuery({
     queryKey: ['adminRole', user?.id],
     queryFn: async () => {
       if (!user) return false;
       
-      const { data, error } = await supabase.rpc('has_role', {
+      const { data, error } = await (supabase.rpc as any)('has_role', {
         _user_id: user.id,
         _role: 'admin'
       });
