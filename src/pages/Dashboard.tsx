@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
+import { useQuery } from '@tanstack/react-query';
 import { 
   Heart, 
   Calendar, 
@@ -16,7 +17,8 @@ import {
   Clock,
   LogOut,
   Play,
-  CheckCircle
+  CheckCircle,
+  Settings
 } from 'lucide-react';
 
 interface Profile {
@@ -40,6 +42,28 @@ const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Check if user is admin
+  const { data: isAdmin } = useQuery({
+    queryKey: ['adminRole', user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      return !!data;
+    },
+    enabled: !!user,
+  });
 
   useEffect(() => {
     if (user) {
@@ -156,10 +180,18 @@ const Dashboard = () => {
               <p className="text-sm text-muted-foreground">Seu Caminho Magro</p>
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={handleSignOut}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Sair
-          </Button>
+          <div className="flex gap-2">
+            {isAdmin && (
+              <Button variant="outline" size="sm" onClick={() => navigate('/admin')}>
+                <Settings className="w-4 h-4 mr-2" />
+                Admin
+              </Button>
+            )}
+            <Button variant="outline" size="sm" onClick={handleSignOut}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Sair
+            </Button>
+          </div>
         </div>
       </div>
 

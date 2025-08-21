@@ -30,6 +30,7 @@ interface Exercise {
   difficulty_level: number;
   calories_estimate: number;
   youtube_video_id?: string;
+  image_url?: string;
 }
 
 interface ExerciseCompletion {
@@ -49,8 +50,6 @@ const ExerciseDay = () => {
   const { toast } = useToast();
 
   const dayNumber = parseInt(day || '1');
-
-  // Novo: refs para rolagem
   const nextDaySectionRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -59,14 +58,14 @@ const ExerciseDay = () => {
     }
   }, [user, dayNumber]);
 
-  // Novo: ao mudar de dia, garantir que a página esteja no topo
+  // Scroll to top when day changes
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [dayNumber]);
 
   const loadDayData = async () => {
     try {
-      // Carregar exercícios do dia
+      // Load exercises for the day
       const { data: exercisesData, error: exercisesError } = await supabase
         .from('exercises')
         .select('*')
@@ -77,7 +76,7 @@ const ExerciseDay = () => {
 
       setExercises(exercisesData || []);
 
-      // Carregar exercícios já completados
+      // Load completed exercises
       const { data: completionsData, error: completionsError } = await supabase
         .from('exercise_completions')
         .select('exercise_id')
@@ -106,16 +105,14 @@ const ExerciseDay = () => {
   const progress = exercises.length > 0 ? (completedCount / exercises.length) * 100 : 0;
   const isDayCompleted = completedCount === exercises.length && exercises.length > 0;
 
-  // Novo: quando o dia for completado, rolar para o botão "Próximo dia"
+  // Scroll to next day button when day is completed
   useEffect(() => {
     if (isDayCompleted) {
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         if (nextDaySectionRef.current) {
           nextDaySectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        } else {
-          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         }
-      });
+      }, 1500); // Wait for celebration animation
     }
   }, [isDayCompleted]);
 
@@ -132,10 +129,8 @@ const ExerciseDay = () => {
   };
 
   const triggerCelebration = () => {
-    // Fogos de artifício confetti
     const duration = 3000;
     const end = Date.now() + duration;
-
     const colors = ['#4ade80', '#60a5fa', '#f472b6', '#fbbf24'];
 
     (function frame() {
@@ -166,30 +161,30 @@ const ExerciseDay = () => {
     setCompleting(exerciseId);
     
     try {
-      // Marcar exercício como completo
+      // Mark exercise as complete
       const { error: completionError } = await supabase
         .from('exercise_completions')
-        .insert({
+        .upsert({
           user_id: user.id,
           exercise_id: exerciseId,
           day_number: dayNumber,
-        });
+        }, { onConflict: 'user_id,exercise_id' });
 
       if (completionError) throw completionError;
 
-      // Atualizar estado local
+      // Update local state
       setCompletions(prev => [...prev, { exercise_id: exerciseId }]);
 
-      // Mostrar mensagem motivacional
+      // Show motivational message
       toast({
         title: showMotivationalMessage(),
         description: "Continue assim! Você está no caminho certo! 🎉",
       });
 
-      // Verificar se o dia foi completado
+      // Check if day is completed
       const newCompletedCount = completedCount + 1;
       if (newCompletedCount === exercises.length) {
-        // Atualizar progresso diário (usar onConflict para garantir merge)
+        // Update daily progress
         const { error: progressError } = await supabase
           .from('daily_progress')
           .upsert({
@@ -202,7 +197,6 @@ const ExerciseDay = () => {
 
         if (progressError) console.error('Erro ao atualizar progresso:', progressError);
 
-        // Mostrar celebração
         setShowCelebration(true);
         triggerCelebration();
         
@@ -213,7 +207,7 @@ const ExerciseDay = () => {
           });
         }, 1000);
       } else {
-        // Atualizar progresso parcial (usar onConflict para garantir merge)
+        // Update partial progress
         const { error: progressError } = await supabase
           .from('daily_progress')
           .upsert({
@@ -275,13 +269,13 @@ const ExerciseDay = () => {
                 {completedCount}/{exercises.length} exercícios
               </p>
             </div>
-            <div className="w-20" /> {/* Spacer */}
+            <div className="w-20" />
           </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto p-4 space-y-6">
-        {/* Progresso do Dia */}
+        {/* Progress Card */}
         <Card className="shadow-soft border-0">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -302,7 +296,25 @@ const ExerciseDay = () => {
           </CardContent>
         </Card>
 
-        {/* Exercícios */}
+        {/* No exercises available */}
+        {exercises.length === 0 && (
+          <Card className="shadow-soft border-0">
+            <CardContent className="p-8 text-center">
+              <Clock className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Nenhum exercício disponível</h3>
+              <p className="text-muted-foreground mb-6">
+                Os exercícios para o Dia {dayNumber} ainda não foram cadastrados.
+              </p>
+              {dayNumber < 30 && (
+                <Button onClick={() => navigate(`/exercises/${dayNumber + 1}`)}>
+                  Ir para Dia {dayNumber + 1}
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Exercises */}
         <div className="space-y-4">
           {exercises.map((exercise, index) => {
             const isCompleted = isExerciseCompleted(exercise.id);
@@ -349,25 +361,33 @@ const ExerciseDay = () => {
                 </CardHeader>
                 
                 <CardContent className="pt-0">
-                  {/* Vídeo do YouTube (se disponível) */}
-                  {exercise.youtube_video_id && (
+                  {/* Media content - YouTube video or image */}
+                  {(exercise.youtube_video_id || exercise.image_url) && (
                     <div className="mb-4">
                       <div className="aspect-video bg-muted rounded-lg overflow-hidden">
-                        <iframe
-                          width="100%"
-                          height="100%"
-                          src={`https://www.youtube.com/embed/${exercise.youtube_video_id}`}
-                          title={exercise.title}
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                          className="w-full h-full"
-                        />
+                        {exercise.youtube_video_id ? (
+                          <iframe
+                            width="100%"
+                            height="100%"
+                            src={`https://www.youtube.com/embed/${exercise.youtube_video_id}`}
+                            title={exercise.title}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="w-full h-full"
+                          />
+                        ) : exercise.image_url ? (
+                          <img
+                            src={exercise.image_url}
+                            alt={exercise.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : null}
                       </div>
                     </div>
                   )}
 
-                  {/* Instruções */}
+                  {/* Instructions */}
                   <div className="bg-muted/50 p-4 rounded-lg mb-4">
                     <h4 className="font-medium mb-2 flex items-center gap-2">
                       <Target className="w-4 h-4 text-primary" />
@@ -378,7 +398,7 @@ const ExerciseDay = () => {
                     </p>
                   </div>
 
-                  {/* Botão de ação */}
+                  {/* Action button */}
                   <div className="flex justify-end">
                     {isCompleted ? (
                       <div className="flex items-center gap-2 text-success">
@@ -412,7 +432,7 @@ const ExerciseDay = () => {
           })}
         </div>
 
-        {/* Celebração do dia completo */}
+        {/* Day completion celebration */}
         {showCelebration && (
           <Card className="shadow-celebration border-0 bg-gradient-celebration text-white animate-bounce">
             <CardContent className="p-8 text-center">
@@ -433,8 +453,8 @@ const ExerciseDay = () => {
           </Card>
         )}
 
-        {/* Botão para próximo dia */}
-        {isDayCompleted && dayNumber < 30 && (
+        {/* Next day button */}
+        {(isDayCompleted || exercises.length === 0) && dayNumber < 30 && (
           <div ref={nextDaySectionRef} className="text-center">
             <Button 
               size="lg"
@@ -446,7 +466,7 @@ const ExerciseDay = () => {
           </div>
         )}
 
-        {/* Voltar ao dashboard */}
+        {/* Back to dashboard */}
         <div className="text-center">
           <Button 
             variant="outline"
