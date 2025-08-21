@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -49,11 +50,19 @@ const ExerciseDay = () => {
 
   const dayNumber = parseInt(day || '1');
 
+  // Novo: refs para rolagem
+  const nextDaySectionRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     if (user && dayNumber) {
       loadDayData();
     }
   }, [user, dayNumber]);
+
+  // Novo: ao mudar de dia, garantir que a página esteja no topo
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  }, [dayNumber]);
 
   const loadDayData = async () => {
     try {
@@ -96,6 +105,19 @@ const ExerciseDay = () => {
   const completedCount = exercises.filter(ex => isExerciseCompleted(ex.id)).length;
   const progress = exercises.length > 0 ? (completedCount / exercises.length) * 100 : 0;
   const isDayCompleted = completedCount === exercises.length && exercises.length > 0;
+
+  // Novo: quando o dia for completado, rolar para o botão "Próximo dia"
+  useEffect(() => {
+    if (isDayCompleted) {
+      requestAnimationFrame(() => {
+        if (nextDaySectionRef.current) {
+          nextDaySectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+      });
+    }
+  }, [isDayCompleted]);
 
   const showMotivationalMessage = () => {
     const messages = [
@@ -167,7 +189,7 @@ const ExerciseDay = () => {
       // Verificar se o dia foi completado
       const newCompletedCount = completedCount + 1;
       if (newCompletedCount === exercises.length) {
-        // Atualizar progresso diário
+        // Atualizar progresso diário (usar onConflict para garantir merge)
         const { error: progressError } = await supabase
           .from('daily_progress')
           .upsert({
@@ -176,7 +198,7 @@ const ExerciseDay = () => {
             completed_exercises: newCompletedCount,
             is_day_completed: true,
             completion_date: new Date().toISOString(),
-          });
+          }, { onConflict: 'user_id,day_number' });
 
         if (progressError) console.error('Erro ao atualizar progresso:', progressError);
 
@@ -191,7 +213,7 @@ const ExerciseDay = () => {
           });
         }, 1000);
       } else {
-        // Atualizar progresso parcial
+        // Atualizar progresso parcial (usar onConflict para garantir merge)
         const { error: progressError } = await supabase
           .from('daily_progress')
           .upsert({
@@ -199,7 +221,7 @@ const ExerciseDay = () => {
             day_number: dayNumber,
             completed_exercises: newCompletedCount,
             is_day_completed: false,
-          });
+          }, { onConflict: 'user_id,day_number' });
 
         if (progressError) console.error('Erro ao atualizar progresso:', progressError);
       }
@@ -413,7 +435,7 @@ const ExerciseDay = () => {
 
         {/* Botão para próximo dia */}
         {isDayCompleted && dayNumber < 30 && (
-          <div className="text-center">
+          <div ref={nextDaySectionRef} className="text-center">
             <Button 
               size="lg"
               onClick={() => navigate(`/exercises/${dayNumber + 1}`)}
