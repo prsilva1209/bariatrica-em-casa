@@ -43,21 +43,20 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check if user is admin
+  // Check if user is admin using the has_role function
   const { data: isAdmin } = useQuery({
     queryKey: ['adminRole', user?.id],
     queryFn: async () => {
       if (!user) return false;
       
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('role', 'admin')
-        .single();
+      const { data, error } = await supabase.rpc('has_role', {
+        _user_id: user.id,
+        _role: 'admin'
+      });
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
+      if (error) {
+        console.error('Error checking admin role:', error);
+        return false;
       }
 
       return !!data;
