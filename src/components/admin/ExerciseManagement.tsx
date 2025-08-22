@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Plus, Edit, Trash2, Save, X, Eye } from 'lucide-react';
+import { normalizeYouTubeEmbed } from '@/lib/youtube';
 
 interface Exercise {
   id: string;
@@ -266,12 +267,12 @@ const ExerciseManagement = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="youtube">ID do vídeo YouTube</Label>
+                <Label htmlFor="youtube">Link do embed ou ID do YouTube</Label>
                 <Input
                   id="youtube"
                   value={formData.youtube_video_id}
                   onChange={(e) => setFormData(prev => ({ ...prev, youtube_video_id: e.target.value }))}
-                  placeholder="Ex: dQw4w9WgXcQ"
+                  placeholder="Cole o link do embed ou ID (ex: https://www.youtube.com/embed/SG1X4MQMS1c)"
                 />
                 {formData.youtube_video_id && (
                   <div className="mt-2">
@@ -279,10 +280,13 @@ const ExerciseManagement = () => {
                       <iframe
                         width="100%"
                         height="100%"
-                        src={`https://www.youtube.com/embed/${formData.youtube_video_id}`}
+                        src={normalizeYouTubeEmbed(formData.youtube_video_id)}
                         title="Preview"
                         frameBorder="0"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         className="w-full h-full"
+                        allowFullScreen
                       />
                     </div>
                   </div>
@@ -406,11 +410,12 @@ const ExerciseManagement = () => {
                             />
                           </div>
                            <div>
-                             <Label htmlFor="edit-youtube">YouTube ID</Label>
+                             <Label htmlFor="edit-youtube">Link do embed ou ID do YouTube</Label>
                              <Input
                                id="edit-youtube"
                                value={formData.youtube_video_id}
                                onChange={(e) => setFormData(prev => ({ ...prev, youtube_video_id: e.target.value }))}
+                               placeholder="Cole o link do embed ou ID (ex: https://www.youtube.com/embed/SG1X4MQMS1c)"
                              />
                              {formData.youtube_video_id && (
                                <div className="mt-2">
@@ -418,10 +423,13 @@ const ExerciseManagement = () => {
                                    <iframe
                                      width="100%"
                                      height="100%"
-                                     src={`https://www.youtube.com/embed/${formData.youtube_video_id}`}
+                                     src={normalizeYouTubeEmbed(formData.youtube_video_id)}
                                      title="Preview"
                                      frameBorder="0"
+                                     referrerPolicy="strict-origin-when-cross-origin"
+                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                      className="w-full h-full"
+                                     allowFullScreen
                                    />
                                  </div>
                                </div>

@@ -19,7 +19,8 @@ import {
   Trophy,
   Star,
   Flame
-} from 'lucide-react';
+ } from 'lucide-react';
+import { normalizeYouTubeEmbed } from '@/lib/youtube';
 
 interface Exercise {
   id: string;
@@ -365,10 +366,11 @@ const ExerciseDay = () => {
                               <iframe
                                 width="100%"
                                 height="100%"
-                                src={`https://www.youtube.com/embed/${exercise.youtube_video_id}`}
+                                src={normalizeYouTubeEmbed(exercise.youtube_video_id!)}
                                 title={exercise.title}
                                 frameBorder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                referrerPolicy="strict-origin-when-cross-origin"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                 allowFullScreen
                                 className="w-full h-full"
                               />
