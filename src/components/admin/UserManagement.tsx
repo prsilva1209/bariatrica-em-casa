@@ -70,8 +70,8 @@ const UserManagement = () => {
 
           const totalExercises = exerciseData?.length || 0;
 
-          // Check if user is admin using the has_role function with type assertion
-          const { data: isAdminData, error: roleError } = await (supabase.rpc as any)('has_role', {
+          // Check if user is admin using the has_role function
+          const { data: isAdminData, error: roleError } = await supabase.rpc('has_role', {
             _user_id: profile.user_id,
             _role: 'admin'
           });
@@ -104,50 +104,59 @@ const UserManagement = () => {
   const toggleAdminRole = async (userId: string, isCurrentlyAdmin: boolean) => {
     try {
       if (isCurrentlyAdmin) {
-        // Remove admin role - we'll use a simple approach that works
+        // Remove admin role
         const { error } = await supabase
-          .from('profiles')
-          .select('id')
+          .from('user_roles')
+          .delete()
           .eq('user_id', userId)
-          .single();
+          .eq('role', 'admin');
 
         if (error) {
-          console.error('User lookup error:', error);
-          throw new Error('Usuário não encontrado');
+          console.error('Error removing admin role:', error);
+          toast({
+            title: "Erro",
+            description: "Erro ao remover permissões de administrador.",
+            variant: "destructive",
+          });
+          return;
         }
 
-        // Since we can't directly manipulate user_roles, we'll show a message
         toast({
-          title: "Funcionalidade temporariamente indisponível",
-          description: "A remoção de permissões de admin será implementada em breve.",
-          variant: "destructive",
+          title: "Sucesso",
+          description: "Permissões de administrador removidas com sucesso.",
         });
-        return;
       } else {
-        // Add admin role - same approach
+        // Add admin role
         const { error } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('user_id', userId)
-          .single();
+          .from('user_roles')
+          .insert({
+            user_id: userId,
+            role: 'admin'
+          });
 
         if (error) {
-          console.error('User lookup error:', error);
-          throw new Error('Usuário não encontrado');
+          console.error('Error adding admin role:', error);
+          toast({
+            title: "Erro",
+            description: "Erro ao adicionar permissões de administrador.",
+            variant: "destructive",
+          });
+          return;
         }
 
-        // Since we can't directly manipulate user_roles, we'll show a message
         toast({
-          title: "Funcionalidade temporariamente indisponível",
-          description: "A concessão de permissões de admin será implementada em breve.",
-          variant: "destructive",
+          title: "Sucesso",
+          description: "Permissões de administrador adicionadas com sucesso.",
         });
-        return;
       }
+
+      // Reload users to reflect changes
+      loadUsers();
     } catch (error: any) {
+      console.error('Error toggling admin role:', error);
       toast({
-        title: "Erro ao alterar permissões",
-        description: error.message,
+        title: "Erro",
+        description: "Erro ao alterar permissões de administrador.",
         variant: "destructive",
       });
     }

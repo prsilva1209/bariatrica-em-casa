@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { performCompleteSignOut } from '@/lib/auth-cleanup';
 import { useAuth } from '@/components/AuthProvider';
 import { useQuery } from '@tanstack/react-query';
 import { 
@@ -43,13 +44,13 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check if user is admin using the has_role function with type assertion
+  // Check if user is admin using the has_role function
   const { data: isAdmin } = useQuery({
     queryKey: ['adminRole', user?.id],
     queryFn: async () => {
       if (!user) return false;
       
-      const { data, error } = await (supabase.rpc as any)('has_role', {
+      const { data, error } = await supabase.rpc('has_role', {
         _user_id: user.id,
         _role: 'admin'
       });
@@ -112,16 +113,7 @@ const Dashboard = () => {
   };
 
   const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      navigate('/auth');
-    } catch (error: any) {
-      toast({
-        title: "Erro ao sair",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+    await performCompleteSignOut();
   };
 
   const getGoalLabel = (goal: string) => {

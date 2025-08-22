@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { prepareForSignIn } from '@/lib/auth-cleanup';
 import { Heart, Shield, Target } from 'lucide-react';
 
 const Auth = () => {
@@ -21,6 +22,9 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      // Clean up auth state before signing in
+      await prepareForSignIn();
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -51,6 +55,9 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      // Clean up auth state before signing up
+      await prepareForSignIn();
+      
       const redirectUrl = `${window.location.origin}/`;
       
       const { data, error } = await supabase.auth.signUp({
