@@ -18,7 +18,7 @@ interface Exercise {
   description: string;
   duration_minutes: number;
   instructions: string;
-  difficulty_level: number;
+  difficulty_level: 'leve' | 'medio' | 'pesado';
   calories_estimate: number;
   youtube_video_id?: string;
   image_url?: string;
@@ -39,7 +39,7 @@ const ExerciseManagement = () => {
     description: '',
     duration_minutes: 10,
     instructions: '',
-    difficulty_level: 1,
+    difficulty_level: 'medio' as 'leve' | 'medio' | 'pesado',
     calories_estimate: 50,
     youtube_video_id: '',
     image_url: '',
@@ -77,7 +77,7 @@ const ExerciseManagement = () => {
       description: '',
       duration_minutes: 10,
       instructions: '',
-      difficulty_level: 1,
+      difficulty_level: 'medio' as 'leve' | 'medio' | 'pesado',
       calories_estimate: 50,
       youtube_video_id: '',
       image_url: '',
@@ -170,12 +170,12 @@ const ExerciseManagement = () => {
     }
   };
 
-  const getDifficultyLabel = (level: number) => {
+  const getDifficultyLabel = (level: 'leve' | 'medio' | 'pesado') => {
     switch (level) {
-      case 1: return 'Suave';
-      case 2: return 'Moderado';
-      case 3: return 'Intenso';
-      default: return 'Suave';
+      case 'leve': return 'Leve';
+      case 'medio': return 'Médio';
+      case 'pesado': return 'Pesado';
+      default: return 'Leve';
     }
   };
 
@@ -246,14 +246,14 @@ const ExerciseManagement = () => {
               </div>
               <div>
                 <Label htmlFor="difficulty">Dificuldade</Label>
-                <Select value={formData.difficulty_level.toString()} onValueChange={(value) => setFormData(prev => ({ ...prev, difficulty_level: parseInt(value) }))}>
+                <Select value={formData.difficulty_level} onValueChange={(value: 'leve' | 'medio' | 'pesado') => setFormData(prev => ({ ...prev, difficulty_level: value }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">Suave</SelectItem>
-                    <SelectItem value="2">Moderado</SelectItem>
-                    <SelectItem value="3">Intenso</SelectItem>
+                    <SelectItem value="leve">Leve</SelectItem>
+                    <SelectItem value="medio">Médio</SelectItem>
+                    <SelectItem value="pesado">Pesado</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -389,14 +389,14 @@ const ExerciseManagement = () => {
                           </div>
                           <div>
                             <Label htmlFor="edit-difficulty">Dificuldade</Label>
-                            <Select value={formData.difficulty_level.toString()} onValueChange={(value) => setFormData(prev => ({ ...prev, difficulty_level: parseInt(value) }))}>
+                            <Select value={formData.difficulty_level} onValueChange={(value: 'leve' | 'medio' | 'pesado') => setFormData(prev => ({ ...prev, difficulty_level: value }))}>
                               <SelectTrigger>
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="1">Suave</SelectItem>
-                                <SelectItem value="2">Moderado</SelectItem>
-                                <SelectItem value="3">Intenso</SelectItem>
+                                <SelectItem value="leve">Leve</SelectItem>
+                                <SelectItem value="medio">Médio</SelectItem>
+                                <SelectItem value="pesado">Pesado</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>

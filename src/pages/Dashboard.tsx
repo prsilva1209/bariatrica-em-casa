@@ -22,6 +22,7 @@ import {
   Settings
 } from 'lucide-react';
 import CaloriesBurnedCard from '@/components/CaloriesBurnedCard';
+import DifficultySelector from '@/components/DifficultySelector';
 
 interface Profile {
   id: string;
@@ -121,7 +122,7 @@ const Dashboard = () => {
     switch (goal) {
       case 'lose_weight': return 'Perder Peso';
       case 'maintain_weight': return 'Manter Peso';
-      case 'bariatric_prep': return 'Preparação Bariátrica';
+      case 'bariatric_prep': return 'Bariátrica em Casa';
       default: return 'Objetivo';
     }
   };
@@ -224,7 +225,7 @@ const Dashboard = () => {
                 <div>
                   <p className="text-sm text-muted-foreground">Objetivo</p>
                   <p className="text-lg font-medium">{getGoalLabel(profile.goal_type)}</p>
-                  <p className="text-sm text-muted-foreground">Dia {daysSinceStart}</p>
+                  <p className="text-sm text-muted-foreground">Dia {currentDay}</p>
                 </div>
                 <Target className="w-8 h-8 text-primary" />
               </div>
@@ -312,6 +313,9 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Configuração de Dificuldade */}
+        <DifficultySelector />
 
         {/* Mensagem Motivacional */}
         <Card className="shadow-soft border-0 bg-gradient-soft">

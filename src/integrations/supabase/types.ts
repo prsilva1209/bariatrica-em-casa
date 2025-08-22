@@ -91,7 +91,7 @@ export type Database = {
           created_at: string
           day_number: number
           description: string
-          difficulty_level: number | null
+          difficulty_level: Database["public"]["Enums"]["difficulty_level"]
           duration_minutes: number
           exercise_order: number
           id: string
@@ -106,7 +106,7 @@ export type Database = {
           created_at?: string
           day_number: number
           description: string
-          difficulty_level?: number | null
+          difficulty_level?: Database["public"]["Enums"]["difficulty_level"]
           duration_minutes?: number
           exercise_order: number
           id?: string
@@ -121,7 +121,7 @@ export type Database = {
           created_at?: string
           day_number?: number
           description?: string
-          difficulty_level?: number | null
+          difficulty_level?: Database["public"]["Enums"]["difficulty_level"]
           duration_minutes?: number
           exercise_order?: number
           id?: string
@@ -142,6 +142,9 @@ export type Database = {
           height: number
           id: string
           name: string
+          preferred_difficulty:
+            | Database["public"]["Enums"]["difficulty_level"]
+            | null
           program_start_date: string | null
           updated_at: string
           user_id: string
@@ -155,6 +158,9 @@ export type Database = {
           height: number
           id?: string
           name: string
+          preferred_difficulty?:
+            | Database["public"]["Enums"]["difficulty_level"]
+            | null
           program_start_date?: string | null
           updated_at?: string
           user_id: string
@@ -168,6 +174,9 @@ export type Database = {
           height?: number
           id?: string
           name?: string
+          preferred_difficulty?:
+            | Database["public"]["Enums"]["difficulty_level"]
+            | null
           program_start_date?: string | null
           updated_at?: string
           user_id?: string
@@ -214,6 +223,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      difficulty_level: "leve" | "medio" | "pesado"
       goal_type: "maintain_weight" | "lose_weight" | "bariatric_prep"
     }
     CompositeTypes: {
@@ -343,6 +353,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      difficulty_level: ["leve", "medio", "pesado"],
       goal_type: ["maintain_weight", "lose_weight", "bariatric_prep"],
     },
   },

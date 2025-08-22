@@ -28,7 +28,7 @@ interface Exercise {
   description: string;
   duration_minutes: number;
   instructions: string;
-  difficulty_level: number;
+  difficulty_level: 'leve' | 'medio' | 'pesado';
   calories_estimate: number;
   youtube_video_id?: string;
   image_url?: string;
@@ -45,6 +45,7 @@ const ExerciseDay = () => {
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [userPreferredDifficulty, setUserPreferredDifficulty] = useState<'leve' | 'medio' | 'pesado'>('medio');
   
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -66,12 +67,35 @@ const ExerciseDay = () => {
 
   const loadDayData = async () => {
     try {
-      // Load exercises for the day
-      const { data: exercisesData, error: exercisesError } = await supabase
+      // Load user's preferred difficulty
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('preferred_difficulty')
+        .eq('user_id', user?.id)
+        .single();
+
+      const preferredDifficulty = profileData?.preferred_difficulty || 'medio';
+      setUserPreferredDifficulty(preferredDifficulty);
+
+      // Load exercises for the day with preferred difficulty first, then fallback
+      let { data: exercisesData, error: exercisesError } = await supabase
         .from('exercises')
         .select('*')
         .eq('day_number', dayNumber)
+        .eq('difficulty_level', preferredDifficulty)
         .order('exercise_order');
+
+      // If no exercises found for preferred difficulty, load any difficulty
+      if (!exercisesData || exercisesData.length === 0) {
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('exercises')
+          .select('*')
+          .eq('day_number', dayNumber)
+          .order('exercise_order');
+        
+        if (fallbackError) throw fallbackError;
+        exercisesData = fallbackData;
+      }
 
       if (exercisesError) throw exercisesError;
 
@@ -226,12 +250,12 @@ const ExerciseDay = () => {
     }
   };
 
-  const getDifficultyBadge = (level: number) => {
+  const getDifficultyBadge = (level: 'leve' | 'medio' | 'pesado') => {
     switch (level) {
-      case 1: return <Badge variant="secondary" className="bg-success/20 text-success">Suave</Badge>;
-      case 2: return <Badge variant="secondary" className="bg-warning/20 text-warning">Moderado</Badge>;
-      case 3: return <Badge variant="secondary" className="bg-destructive/20 text-destructive">Intenso</Badge>;
-      default: return <Badge variant="secondary">Suave</Badge>;
+      case 'leve': return <Badge variant="secondary" className="bg-success/20 text-success">Leve</Badge>;
+      case 'medio': return <Badge variant="secondary" className="bg-warning/20 text-warning">Médio</Badge>;
+      case 'pesado': return <Badge variant="secondary" className="bg-destructive/20 text-destructive">Pesado</Badge>;
+      default: return <Badge variant="secondary">Leve</Badge>;
     }
   };
 
