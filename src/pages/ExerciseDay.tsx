@@ -175,12 +175,6 @@ const ExerciseDay = () => {
       // Update local state
       setCompletions(prev => [...prev, { exercise_id: exerciseId }]);
 
-      // Show motivational message
-      toast({
-        title: showMotivationalMessage(),
-        description: "Continue assim! Você está no caminho certo! 🎉",
-      });
-
       // Check if day is completed
       const newCompletedCount = completedCount + 1;
       if (newCompletedCount === exercises.length) {
@@ -361,28 +355,32 @@ const ExerciseDay = () => {
                 </CardHeader>
                 
                 <CardContent className="pt-0">
-                  {/* Media content - YouTube video or image */}
+                  {/* Centralized Media Display */}
                   {(exercise.youtube_video_id || exercise.image_url) && (
-                    <div className="mb-4">
-                      <div className="aspect-video bg-muted rounded-lg overflow-hidden">
-                        {exercise.youtube_video_id ? (
-                          <iframe
-                            width="100%"
-                            height="100%"
-                            src={`https://www.youtube.com/embed/${exercise.youtube_video_id}`}
-                            title={exercise.title}
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="w-full h-full"
-                          />
-                        ) : exercise.image_url ? (
-                          <img
-                            src={exercise.image_url}
-                            alt={exercise.title}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : null}
+                    <div className="mb-6">
+                      <div className="flex justify-center">
+                        <div className="w-full max-w-2xl">
+                          <div className="aspect-video bg-muted rounded-xl overflow-hidden shadow-soft border">
+                            {exercise.youtube_video_id ? (
+                              <iframe
+                                width="100%"
+                                height="100%"
+                                src={`https://www.youtube.com/embed/${exercise.youtube_video_id}`}
+                                title={exercise.title}
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                                className="w-full h-full"
+                              />
+                            ) : exercise.image_url ? (
+                              <img
+                                src={exercise.image_url}
+                                alt={exercise.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : null}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}

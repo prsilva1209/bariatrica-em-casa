@@ -273,6 +273,20 @@ const ExerciseManagement = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, youtube_video_id: e.target.value }))}
                   placeholder="Ex: dQw4w9WgXcQ"
                 />
+                {formData.youtube_video_id && (
+                  <div className="mt-2">
+                    <div className="aspect-video bg-muted rounded-lg overflow-hidden max-w-xs">
+                      <iframe
+                        width="100%"
+                        height="100%"
+                        src={`https://www.youtube.com/embed/${formData.youtube_video_id}`}
+                        title="Preview"
+                        frameBorder="0"
+                        className="w-full h-full"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
               <div>
                 <Label htmlFor="image">URL da imagem</Label>
@@ -282,6 +296,17 @@ const ExerciseManagement = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
                   placeholder="https://exemplo.com/imagem.jpg"
                 />
+                {formData.image_url && (
+                  <div className="mt-2">
+                    <div className="aspect-video bg-muted rounded-lg overflow-hidden max-w-xs">
+                      <img
+                        src={formData.image_url}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             <div>
@@ -380,22 +405,47 @@ const ExerciseManagement = () => {
                               onChange={(e) => setFormData(prev => ({ ...prev, calories_estimate: parseInt(e.target.value) || 0 }))}
                             />
                           </div>
-                          <div>
-                            <Label htmlFor="edit-youtube">YouTube ID</Label>
-                            <Input
-                              id="edit-youtube"
-                              value={formData.youtube_video_id}
-                              onChange={(e) => setFormData(prev => ({ ...prev, youtube_video_id: e.target.value }))}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="edit-image">URL da imagem</Label>
-                            <Input
-                              id="edit-image"
-                              value={formData.image_url}
-                              onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
-                            />
-                          </div>
+                           <div>
+                             <Label htmlFor="edit-youtube">YouTube ID</Label>
+                             <Input
+                               id="edit-youtube"
+                               value={formData.youtube_video_id}
+                               onChange={(e) => setFormData(prev => ({ ...prev, youtube_video_id: e.target.value }))}
+                             />
+                             {formData.youtube_video_id && (
+                               <div className="mt-2">
+                                 <div className="aspect-video bg-muted rounded-lg overflow-hidden max-w-xs">
+                                   <iframe
+                                     width="100%"
+                                     height="100%"
+                                     src={`https://www.youtube.com/embed/${formData.youtube_video_id}`}
+                                     title="Preview"
+                                     frameBorder="0"
+                                     className="w-full h-full"
+                                   />
+                                 </div>
+                               </div>
+                             )}
+                           </div>
+                           <div>
+                             <Label htmlFor="edit-image">URL da imagem</Label>
+                             <Input
+                               id="edit-image"
+                               value={formData.image_url}
+                               onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
+                             />
+                             {formData.image_url && (
+                               <div className="mt-2">
+                                 <div className="aspect-video bg-muted rounded-lg overflow-hidden max-w-xs">
+                                   <img
+                                     src={formData.image_url}
+                                     alt="Preview"
+                                     className="w-full h-full object-cover"
+                                   />
+                                 </div>
+                               </div>
+                             )}
+                           </div>
                         </div>
                         <div>
                           <Label htmlFor="edit-description">Descrição</Label>
