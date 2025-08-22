@@ -21,6 +21,7 @@ import {
   CheckCircle,
   Settings
 } from 'lucide-react';
+import CaloriesBurnedCard from '@/components/CaloriesBurnedCard';
 
 interface Profile {
   id: string;
@@ -188,7 +189,7 @@ const Dashboard = () => {
 
       <div className="max-w-4xl mx-auto p-4 space-y-6">
         {/* Cards de Status */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="shadow-soft border-0">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -229,6 +230,8 @@ const Dashboard = () => {
               </div>
             </CardContent>
           </Card>
+
+          <CaloriesBurnedCard userId={user?.id} />
         </div>
 
         {/* Progresso Visual */}

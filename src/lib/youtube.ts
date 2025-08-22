@@ -9,31 +9,39 @@ export function normalizeYouTubeEmbed(input: string): string {
   if (initial.startsWith('http')) {
     try {
       const url = new URL(initial);
+      let videoId = '';
+      
       // youtu.be short links
       if (url.hostname.includes('youtu.be')) {
-        const id = url.pathname.replace(/^\//, '').split('/')[0];
-        return `https://www.youtube.com/embed/${id}`;
+        videoId = url.pathname.replace(/^\//, '').split('/')[0];
       }
       // shorts
-      if (url.pathname.startsWith('/shorts/')) {
-        const id = url.pathname.split('/')[2] || url.pathname.split('/')[1];
-        return `https://www.youtube.com/embed/${id}`;
+      else if (url.pathname.startsWith('/shorts/')) {
+        videoId = url.pathname.split('/')[2] || url.pathname.split('/')[1];
       }
       // watch?v=
-      const v = url.searchParams.get('v');
-      if (v) {
-        return `https://www.youtube.com/embed/${v}`;
+      else if (url.searchParams.get('v')) {
+        videoId = url.searchParams.get('v')!;
       }
       // already /embed/
-      if (url.pathname.startsWith('/embed/')) {
-        return `https://www.youtube.com${url.pathname}${url.search}`;
+      else if (url.pathname.startsWith('/embed/')) {
+        videoId = url.pathname.split('/')[2] || url.pathname.split('/')[1];
       }
       // fallback: last segment as ID
-      const segs = url.pathname.split('/').filter(Boolean);
-      if (segs.length) {
-        const id = segs[segs.length - 1];
-        return `https://www.youtube.com/embed/${id}`;
+      else {
+        const segs = url.pathname.split('/').filter(Boolean);
+        if (segs.length) {
+          videoId = segs[segs.length - 1];
+        }
       }
+
+      if (videoId) {
+        // Clean video ID (remove query parameters like si)
+        videoId = videoId.split('?')[0].split('&')[0];
+        // Use youtube-nocookie for better privacy and performance
+        return `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&playsinline=1`;
+      }
+      
       return initial;
     } catch {
       // fall through to treat as ID
@@ -43,5 +51,5 @@ export function normalizeYouTubeEmbed(input: string): string {
   // Assume plain ID
   const idMatch = initial.match(/[a-zA-Z0-9_-]{6,}/);
   const id = idMatch ? idMatch[0] : initial;
-  return `https://www.youtube.com/embed/${id}`;
+  return `https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1&playsinline=1`;
 }

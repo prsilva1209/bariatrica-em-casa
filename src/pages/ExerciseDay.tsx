@@ -356,17 +356,18 @@ const ExerciseDay = () => {
                 </CardHeader>
                 
                 <CardContent className="pt-0">
-                  {/* Centralized Media Display */}
+                  {/* Media Display - Video and Image */}
                   {(exercise.youtube_video_id || exercise.image_url) && (
-                    <div className="mb-6">
-                      <div className="flex justify-center">
-                        <div className="w-full max-w-2xl">
-                          <div className="aspect-video bg-muted rounded-xl overflow-hidden shadow-soft border">
-                            {exercise.youtube_video_id ? (
+                    <div className="mb-6 space-y-4">
+                      {/* YouTube Video */}
+                      {exercise.youtube_video_id && (
+                        <div className="flex justify-center">
+                          <div className="w-full max-w-2xl">
+                            <div className="aspect-video bg-muted rounded-xl overflow-hidden shadow-soft border">
                               <iframe
                                 width="100%"
                                 height="100%"
-                                src={normalizeYouTubeEmbed(exercise.youtube_video_id!)}
+                                src={normalizeYouTubeEmbed(exercise.youtube_video_id)}
                                 title={exercise.title}
                                 frameBorder="0"
                                 referrerPolicy="strict-origin-when-cross-origin"
@@ -374,16 +375,35 @@ const ExerciseDay = () => {
                                 allowFullScreen
                                 className="w-full h-full"
                               />
-                            ) : exercise.image_url ? (
+                            </div>
+                            <div className="mt-2 text-center">
+                              <a 
+                                href={`https://www.youtube.com/watch?v=${exercise.youtube_video_id.split('/').pop()?.split('?')[0]}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-primary hover:underline"
+                              >
+                                Abrir no YouTube
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Image */}
+                      {exercise.image_url && (
+                        <div className="flex justify-center">
+                          <div className="w-full max-w-2xl">
+                            <div className="aspect-video bg-muted rounded-xl overflow-hidden shadow-soft border">
                               <img
                                 src={exercise.image_url}
                                 alt={exercise.title}
                                 className="w-full h-full object-cover"
                               />
-                            ) : null}
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   )}
 
