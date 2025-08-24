@@ -15,7 +15,7 @@ const Index = () => {
               <Heart className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="font-semibold text-lg">Seu Caminho Magro</h1>
+              <h1 className="font-semibold text-lg">Bariatrica em Casa</h1>
               <p className="text-xs text-muted-foreground">Programa de 30 dias</p>
             </div>
           </div>
@@ -32,7 +32,7 @@ const Index = () => {
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <div className="space-y-4">
             <h1 className="text-4xl md:text-6xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Seu Caminho Magro
+              Bariatrica em Casa
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
               Um programa de 30 dias especialmente desenvolvido para pessoas que querem 
@@ -190,7 +190,7 @@ const Index = () => {
             <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
               <Heart className="w-4 h-4 text-white" />
             </div>
-            <span className="font-semibold">Seu Caminho Magro</span>
+            <span className="font-semibold">Bariatrica em Casa</span>
           </div>
           <p className="text-muted-foreground text-sm">
             Cuidando da sua saúde com amor e dedicação. Seu bem-estar é nossa prioridade.
