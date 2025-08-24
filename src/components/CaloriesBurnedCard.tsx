@@ -40,14 +40,14 @@ const CaloriesBurnedCard = ({ userId }: CaloriesBurnedCardProps) => {
 
   return (
     <Card className="shadow-soft border-0">
-      <CardContent className="p-4">
+      <CardContent className="p-3 sm:p-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-muted-foreground">Calorias Queimadas</p>
-            <p className="text-2xl font-semibold">{totalCalories.toLocaleString()}</p>
-            <p className="text-sm text-muted-foreground">total acumulado</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">Calorias Queimadas</p>
+            <p className="text-xl sm:text-2xl font-semibold">{totalCalories.toLocaleString()}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">total acumulado</p>
           </div>
-          <Flame className="w-8 h-8 text-primary" />
+          <Flame className="w-6 sm:w-8 h-6 sm:h-8 text-primary" />
         </div>
       </CardContent>
     </Card>

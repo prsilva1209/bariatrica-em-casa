@@ -293,7 +293,7 @@ const ExerciseDay = () => {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto p-4 space-y-6">
+      <div className="max-w-4xl mx-auto p-3 sm:p-4 space-y-4 sm:space-y-6">
         {/* Progress Card */}
         <Card className="shadow-soft border-0">
           <CardContent className="p-6">

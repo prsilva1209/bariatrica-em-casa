@@ -19,10 +19,13 @@ import {
   LogOut,
   Play,
   CheckCircle,
-  Settings
+  Settings,
+  RefreshCcw,
+  Award
 } from 'lucide-react';
 import CaloriesBurnedCard from '@/components/CaloriesBurnedCard';
 import DifficultySelector from '@/components/DifficultySelector';
+import RestartProgramModal from '@/components/RestartProgramModal';
 
 interface Profile {
   id: string;
@@ -30,6 +33,7 @@ interface Profile {
   current_bmi: number;
   goal_type: string;
   program_start_date: string;
+  preferred_difficulty: string;
 }
 
 interface DailyProgress {
@@ -42,6 +46,7 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [progress, setProgress] = useState<DailyProgress[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showRestartModal, setShowRestartModal] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -138,6 +143,7 @@ const Dashboard = () => {
   const completedDays = progress.filter(p => p.is_day_completed).length;
   const totalProgress = (completedDays / 30) * 100;
   const currentDay = Math.min(completedDays + 1, 30);
+  const isProgramComplete = completedDays >= 30;
 
   if (loading) {
     return (
@@ -170,7 +176,7 @@ const Dashboard = () => {
             </div>
             <div>
               <h1 className="font-semibold">Olá, {profile.name}!</h1>
-              <p className="text-sm text-muted-foreground">Seu Caminho Magro</p>
+              <p className="text-sm text-muted-foreground">Bariatrica em Casa</p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -190,44 +196,50 @@ const Dashboard = () => {
 
       <div className="max-w-4xl mx-auto p-4 space-y-6">
         {/* Cards de Status */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <Card className="shadow-soft border-0">
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Progresso Geral</p>
-                  <p className="text-2xl font-semibold">{completedDays}/30</p>
-                  <p className="text-sm text-muted-foreground">dias completos</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Progresso Geral</p>
+                  <p className="text-xl sm:text-2xl font-semibold">{completedDays}/30</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">dias completos</p>
                 </div>
-                <Trophy className="w-8 h-8 text-primary" />
+                {isProgramComplete ? (
+                  <Award className="w-6 sm:w-8 h-6 sm:h-8 text-success" />
+                ) : (
+                  <Trophy className="w-6 sm:w-8 h-6 sm:h-8 text-primary" />
+                )}
               </div>
             </CardContent>
           </Card>
 
           <Card className="shadow-soft border-0">
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">IMC Atual</p>
-                  <p className="text-2xl font-semibold">{profile.current_bmi}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">IMC Atual</p>
+                  <p className="text-xl sm:text-2xl font-semibold">{profile.current_bmi}</p>
                   <Badge variant="secondary" className={`text-xs ${bmiStatus.color} text-white`}>
                     {bmiStatus.status}
                   </Badge>
                 </div>
-                <TrendingUp className="w-8 h-8 text-primary" />
+                <TrendingUp className="w-6 sm:w-8 h-6 sm:h-8 text-primary" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="shadow-soft border-0">
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Objetivo</p>
-                  <p className="text-lg font-medium">{getGoalLabel(profile.goal_type)}</p>
-                  <p className="text-sm text-muted-foreground">Dia {currentDay}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Objetivo</p>
+                  <p className="text-sm sm:text-lg font-medium">{getGoalLabel(profile.goal_type)}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    {isProgramComplete ? 'Completo!' : `Dia ${currentDay}`}
+                  </p>
                 </div>
-                <Target className="w-8 h-8 text-primary" />
+                <Target className="w-6 sm:w-8 h-6 sm:h-8 text-primary" />
               </div>
             </CardContent>
           </Card>
@@ -249,7 +261,7 @@ const Dashboard = () => {
           <CardContent>
             <div className="space-y-4">
               <Progress value={totalProgress} className="h-3" />
-              <div className="grid grid-cols-10 gap-2">
+              <div className="grid grid-cols-5 sm:grid-cols-10 gap-1 sm:gap-2">
                 {Array.from({ length: 30 }, (_, i) => {
                   const day = i + 1;
                   const dayProgress = progress.find(p => p.day_number === day);
@@ -260,7 +272,7 @@ const Dashboard = () => {
                     <div
                       key={day}
                       className={`
-                        w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all
+                        w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all
                         ${isCompleted 
                           ? 'bg-success text-white shadow-soft' 
                           : isCurrent 
@@ -269,7 +281,11 @@ const Dashboard = () => {
                         }
                       `}
                     >
-                      {isCompleted ? <CheckCircle className="w-4 h-4" /> : day}
+                      {isCompleted ? (
+                        <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                      ) : (
+                        <span className="text-xs">{day}</span>
+                      )}
                     </div>
                   );
                 })}
@@ -279,35 +295,50 @@ const Dashboard = () => {
         </Card>
 
         {/* Ação do Dia */}
-        <Card className="shadow-soft border-0 bg-gradient-primary text-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-semibold mb-2">Exercícios do Dia {currentDay}</h3>
-                <p className="text-white/90 mb-4">
-                  {currentDay > 30 
-                    ? 'Parabéns! Você completou todo o programa!' 
+        <Card className={`shadow-soft border-0 ${isProgramComplete ? 'bg-gradient-celebration' : 'bg-gradient-primary'} text-white`}>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:justify-between">
+              <div className="text-center sm:text-left flex-1">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2">
+                  {isProgramComplete ? 'Programa Completo! 🎉' : `Exercícios do Dia ${currentDay}`}
+                </h3>
+                <p className="text-white/90 mb-4 text-sm sm:text-base">
+                  {isProgramComplete 
+                    ? 'Parabéns! Você completou toda a jornada de 30 dias!' 
                     : 'Está na hora do seu treino diário. Vamos com calma e carinho!'
                   }
                 </p>
-                <div className="flex items-center gap-2 text-white/80">
-                  <Clock className="w-4 h-4" />
-                  <span className="text-sm">~50 minutos de exercícios</span>
-                </div>
+                {!isProgramComplete && (
+                  <div className="flex items-center gap-2 text-white/80 justify-center sm:justify-start">
+                    <Clock className="w-4 h-4" />
+                    <span className="text-xs sm:text-sm">~50 minutos de exercícios</span>
+                  </div>
+                )}
               </div>
               <div className="text-center">
-                {currentDay <= 30 ? (
+                {isProgramComplete ? (
+                  <div className="flex flex-col gap-2">
+                    <div className="text-2xl sm:text-4xl">🏆</div>
+                    <Button 
+                      size="lg" 
+                      variant="secondary"
+                      onClick={() => setShowRestartModal(true)}
+                      className="bg-white text-primary hover:bg-white/90"
+                    >
+                      <RefreshCcw className="w-4 h-4 mr-2" />
+                      Recomeçar
+                    </Button>
+                  </div>
+                ) : (
                   <Button 
                     size="lg" 
                     variant="secondary"
                     onClick={() => navigate(`/exercises/${currentDay}`)}
-                    className="bg-white text-primary hover:bg-white/90"
+                    className="bg-white text-primary hover:bg-white/90 w-full sm:w-auto"
                   >
-                    <Play className="w-5 h-5 mr-2" />
+                    <Play className="w-4 h-4 mr-2" />
                     Começar
                   </Button>
-                ) : (
-                  <div className="text-4xl">🎉</div>
                 )}
               </div>
             </div>
@@ -315,13 +346,13 @@ const Dashboard = () => {
         </Card>
 
         {/* Configuração de Dificuldade */}
-        <DifficultySelector />
+        {!isProgramComplete && <DifficultySelector />}
 
         {/* Mensagem Motivacional */}
         <Card className="shadow-soft border-0 bg-gradient-soft">
-          <CardContent className="p-6 text-center">
-            <Heart className="w-8 h-8 text-primary mx-auto mb-3" />
-            <h3 className="font-semibold mb-2">
+          <CardContent className="p-4 sm:p-6 text-center">
+            <Heart className="w-6 sm:w-8 h-6 sm:h-8 text-primary mx-auto mb-3" />
+            <h3 className="font-semibold mb-2 text-sm sm:text-base">
               {completedDays === 0 
                 ? 'Seja bem-vindo à sua jornada!' 
                 : completedDays < 10 
@@ -333,7 +364,7 @@ const Dashboard = () => {
                 : 'Parabéns! Você completou toda a jornada!'
               }
             </h3>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-xs sm:text-sm">
               {completedDays === 0 
                 ? 'Lembre-se: cada passo é importante. Vamos com calma e cuidado.' 
                 : completedDays < 30 
@@ -343,6 +374,15 @@ const Dashboard = () => {
             </p>
           </CardContent>
         </Card>
+
+        {/* Modal de Recomeço */}
+        <RestartProgramModal
+          open={showRestartModal}
+          onOpenChange={setShowRestartModal}
+          onSuccess={loadUserData}
+          currentGoal={profile?.goal_type || 'lose_weight'}
+          currentDifficulty={profile?.preferred_difficulty || 'medio'}
+        />
       </div>
     </div>
   );
