@@ -32,6 +32,8 @@ const ExerciseManagement = () => {
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string>('none');
+  const [plans, setPlans] = useState<{ id: string; title: string }[]>([]);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -47,7 +49,22 @@ const ExerciseManagement = () => {
 
   useEffect(() => {
     loadExercises();
+    loadPlans();
   }, [selectedDay]);
+
+  const loadPlans = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('workout_plans')
+        .select('id, title')
+        .order('title');
+
+      if (error) throw error;
+      setPlans(data || []);
+    } catch (error) {
+      console.error('Error loading plans:', error);
+    }
+  };
 
   const loadExercises = async () => {
     setLoading(true);
@@ -204,6 +221,22 @@ const ExerciseManagement = () => {
                 ))}
               </SelectContent>
             </Select>
+            
+            <Label htmlFor="plan-select">Plano:</Label>
+            <Select value={selectedPlan} onValueChange={setSelectedPlan}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sem plano específico</SelectItem>
+                {plans.map((plan) => (
+                  <SelectItem key={plan.id} value={plan.id}>
+                    {plan.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
             <Button onClick={() => setShowAddForm(true)} className="ml-auto">
               <Plus className="w-4 h-4 mr-2" />
               Adicionar Exercício

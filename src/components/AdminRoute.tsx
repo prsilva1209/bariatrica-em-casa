@@ -12,28 +12,28 @@ interface AdminRouteProps {
 const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
 
-  const { data: isAdmin, isLoading: checkingAdmin } = useQuery({
-    queryKey: ['adminRole', user?.id],
+  const { data: hasAccess, isLoading: checkingAccess } = useQuery({
+    queryKey: ['adminAccess', user?.id],
     queryFn: async () => {
       if (!user) return false;
       
-      // Use the has_role function
-      const { data, error } = await supabase.rpc('has_role', {
-        _user_id: user.id,
-        _role: 'admin'
-      });
+      // Check if user has admin or instructor role
+      const [adminResult, instructorResult] = await Promise.all([
+        supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' }),
+        supabase.rpc('has_role', { _user_id: user.id, _role: 'instrutor' })
+      ]);
 
-      if (error) {
-        console.error('Error checking admin role:', error);
+      if (adminResult.error || instructorResult.error) {
+        console.error('Error checking roles:', adminResult.error || instructorResult.error);
         return false;
       }
 
-      return !!data;
+      return !!(adminResult.data || instructorResult.data);
     },
     enabled: !!user,
   });
 
-  if (loading || checkingAdmin) {
+  if (loading || checkingAccess) {
     return (
       <div className="min-h-screen bg-gradient-soft flex items-center justify-center">
         <div className="text-center">
@@ -46,7 +46,7 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
     );
   }
 
-  if (!user || !isAdmin) {
+  if (!user || !hasAccess) {
     return <Navigate to="/dashboard" replace />;
   }
 

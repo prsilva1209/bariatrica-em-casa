@@ -112,6 +112,7 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            {/* Admin Routes - accessible by admin and instrutor */}
             <Route 
               path="/admin" 
               element={

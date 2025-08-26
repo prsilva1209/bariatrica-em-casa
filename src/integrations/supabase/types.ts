@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string | null
+          table_name: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       daily_progress: {
         Row: {
           completed_exercises: number | null
@@ -97,6 +130,7 @@ export type Database = {
           id: string
           image_url: string | null
           instructions: string
+          plan_id: string | null
           title: string
           updated_at: string
           youtube_video_id: string | null
@@ -112,6 +146,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           instructions: string
+          plan_id?: string | null
           title: string
           updated_at?: string
           youtube_video_id?: string | null
@@ -127,11 +162,20 @@ export type Database = {
           id?: string
           image_url?: string | null
           instructions?: string
+          plan_id?: string | null
           title?: string
           updated_at?: string
           youtube_video_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "exercises_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "workout_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -247,11 +291,48 @@ export type Database = {
         }
         Relationships: []
       }
+      workout_plans: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      create_audit_log: {
+        Args: {
+          _action: string
+          _new_values?: Json
+          _old_values?: Json
+          _record_id: string
+          _table_name: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Search, Shield, ShieldCheck, Users, Trophy, Calendar } from 'lucide-react';
@@ -22,6 +23,7 @@ interface UserProfile {
   completed_days?: number;
   total_exercises?: number;
   is_admin?: boolean;
+  userRole: string;
 }
 
 const UserManagement = () => {
@@ -71,21 +73,22 @@ const UserManagement = () => {
 
           const totalExercises = exerciseData?.length || 0;
 
-          // Check if user is admin using the has_role function
-          const { data: isAdminData, error: roleError } = await supabase.rpc('has_role', {
-            _user_id: profile.user_id,
-            _role: 'admin'
-          });
-
-          if (roleError) {
-            console.error('Error checking admin role:', roleError);
-          }
+          // Check roles
+          const [adminResult, instructorResult] = await Promise.all([
+            supabase.rpc('has_role', { _user_id: profile.user_id, _role: 'admin' }),
+            supabase.rpc('has_role', { _user_id: profile.user_id, _role: 'instrutor' })
+          ]);
+          
+          let userRole = 'user';
+          if (adminResult.data) userRole = 'admin';
+          else if (instructorResult.data) userRole = 'instrutor';
 
           return {
             ...profile,
             completed_days: completedDays,
             total_exercises: totalExercises,
-            is_admin: !!isAdminData,
+            is_admin: !!adminResult.data,
+            userRole
           };
         })
       );
@@ -102,64 +105,65 @@ const UserManagement = () => {
     }
   };
 
-  const toggleAdminRole = async (userId: string, isCurrentlyAdmin: boolean) => {
+  const changeUserRole = async (userId: string, newRole: 'admin' | 'instrutor' | 'user') => {
     try {
-      if (isCurrentlyAdmin) {
-        // Remove admin role
-        const { error } = await supabase
-          .from('user_roles')
-          .delete()
-          .eq('user_id', userId)
-          .eq('role', 'admin');
+      // Remove existing roles
+      await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId);
 
-        if (error) {
-          console.error('Error removing admin role:', error);
-          toast({
-            title: "Erro",
-            description: "Erro ao remover permissões de administrador.",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        toast({
-          title: "Sucesso",
-          description: "Permissões de administrador removidas com sucesso.",
-        });
-      } else {
-        // Add admin role
+      // Add new role (only if not 'user' - users have no explicit role)
+      if (newRole !== 'user') {
         const { error } = await supabase
           .from('user_roles')
           .insert({
             user_id: userId,
-            role: 'admin'
+            role: newRole,
           });
 
-        if (error) {
-          console.error('Error adding admin role:', error);
-          toast({
-            title: "Erro",
-            description: "Erro ao adicionar permissões de administrador.",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        toast({
-          title: "Sucesso",
-          description: "Permissões de administrador adicionadas com sucesso.",
-        });
+        if (error) throw error;
       }
 
-      // Reload users to reflect changes
+      // Log de auditoria
+      await supabase.rpc('create_audit_log', {
+        _action: 'UPDATE',
+        _table_name: 'user_roles',
+        _record_id: userId,
+        _new_values: { role: newRole },
+      });
+
+      toast({
+        title: "Role alterada",
+        description: `Usuário agora é ${getRoleDisplayName(newRole)}.`,
+      });
+
       loadUsers();
-    } catch (error: any) {
-      console.error('Error toggling admin role:', error);
+    } catch (error) {
+      console.error('Error changing user role:', error);
       toast({
         title: "Erro",
-        description: "Erro ao alterar permissões de administrador.",
+        description: "Erro ao alterar role do usuário.",
         variant: "destructive",
       });
+    }
+  };
+
+  const getRoleDisplayName = (role: string) => {
+    switch (role) {
+      case 'admin': return 'Administrador';
+      case 'instrutor': return 'Instrutor';
+      case 'user': return 'Usuário';
+      default: return role;
+    }
+  };
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'admin': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300';
+      case 'instrutor': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
+      case 'user': return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
     }
   };
 
@@ -243,12 +247,9 @@ const UserManagement = () => {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3">
                         <h3 className="text-lg font-semibold">{user.name}</h3>
-                        {user.is_admin && (
-                          <Badge className="bg-primary text-white">
-                            <ShieldCheck className="w-3 h-3 mr-1" />
-                            Admin
-                          </Badge>
-                        )}
+                        <Badge className={getRoleColor(user.userRole)}>
+                          {getRoleDisplayName(user.userRole)}
+                        </Badge>
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
@@ -309,23 +310,19 @@ const UserManagement = () => {
                     </div>
 
                     <div className="ml-6">
-                      <Button
-                        variant={user.is_admin ? "destructive" : "outline"}
-                        size="sm"
-                        onClick={() => toggleAdminRole(user.user_id, user.is_admin || false)}
+                      <Select
+                        value={user.userRole}
+                        onValueChange={(value) => changeUserRole(user.user_id, value as 'admin' | 'instrutor' | 'user')}
                       >
-                        {user.is_admin ? (
-                          <>
-                            <Shield className="w-4 h-4 mr-2" />
-                            Remover Admin
-                          </>
-                        ) : (
-                          <>
-                            <ShieldCheck className="w-4 h-4 mr-2" />
-                            Tornar Admin
-                          </>
-                        )}
-                      </Button>
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="user">Usuário</SelectItem>
+                          <SelectItem value="instrutor">Instrutor</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </CardContent>
