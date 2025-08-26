@@ -138,6 +138,7 @@ export type Database = {
           age: number
           created_at: string
           current_bmi: number
+          email: string
           goal_type: Database["public"]["Enums"]["goal_type"]
           height: number
           id: string
@@ -154,6 +155,7 @@ export type Database = {
           age: number
           created_at?: string
           current_bmi: number
+          email: string
           goal_type?: Database["public"]["Enums"]["goal_type"]
           height: number
           id?: string
@@ -170,6 +172,7 @@ export type Database = {
           age?: number
           created_at?: string
           current_bmi?: number
+          email?: string
           goal_type?: Database["public"]["Enums"]["goal_type"]
           height?: number
           id?: string
@@ -181,6 +184,42 @@ export type Database = {
           updated_at?: string
           user_id?: string
           weight?: number
+        }
+        Relationships: []
+      }
+      purchases: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string | null
+          email: string
+          id: string
+          order_id: string | null
+          product: string
+          raw: Json | null
+          status: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string | null
+          email: string
+          id?: string
+          order_id?: string | null
+          product: string
+          raw?: Json | null
+          status: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string | null
+          email?: string
+          id?: string
+          order_id?: string | null
+          product?: string
+          raw?: Json | null
+          status?: string
         }
         Relationships: []
       }
