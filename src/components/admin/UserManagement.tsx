@@ -11,6 +11,7 @@ import { Search, Shield, ShieldCheck, Users, Trophy, Calendar } from 'lucide-rea
 interface UserProfile {
   id: string;
   name: string;
+  email: string;
   current_bmi: number;
   goal_type: string;
   program_start_date: string;
@@ -251,6 +252,10 @@ const UserManagement = () => {
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Email</p>
+                          <p className="text-sm font-medium">{user.email}</p>
+                        </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Informações Básicas</p>
                           <p className="text-sm">
