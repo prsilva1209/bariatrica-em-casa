@@ -72,6 +72,7 @@ const Onboarding = () => {
         .from('profiles')
         .insert({
           user_id: user.id,
+          email: user.email || '',
           name: formData.name,
           age: parseInt(formData.age),
           height: height,

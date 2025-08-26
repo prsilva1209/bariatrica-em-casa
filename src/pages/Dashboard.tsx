@@ -30,6 +30,7 @@ import RestartProgramModal from '@/components/RestartProgramModal';
 interface Profile {
   id: string;
   name: string;
+  email: string;
   current_bmi: number;
   goal_type: string;
   program_start_date: string;
@@ -176,6 +177,7 @@ const Dashboard = () => {
             </div>
             <div>
               <h1 className="font-semibold">Olá, {profile.name}!</h1>
+              <p className="text-xs text-muted-foreground">{profile.email}</p>
               <p className="text-sm text-muted-foreground">Bariatrica em Casa</p>
             </div>
           </div>
