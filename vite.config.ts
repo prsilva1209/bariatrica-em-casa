@@ -3,13 +3,16 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   return {
     server: {
-      host: "31.97.42.144", // mais compatível do que "::"
+      host: "0.0.0.0",
       port: 8080,
-      strictPort: true, // garante que não troca a porta automaticamente
+      strictPort: true,
+    },
+    preview: {
+      // Permite que este host específico acesse o servidor
+      allowedHosts: ["bariatrica-bariatricaemcasa.zn6b4j.easypanel.host"],
     },
     plugins: [
       react(),
@@ -22,7 +25,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: "dist",
-      sourcemap: mode === "development", // facilita debug no dev
+      sourcemap: mode === "development",
     },
   };
 });
