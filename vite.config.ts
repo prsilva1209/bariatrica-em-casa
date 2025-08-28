@@ -7,7 +7,7 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => {
   return {
     server: {
-      host: "0.0.0.0", // mais compatível do que "::"
+      host: "31.97.42.144", // mais compatível do que "::"
       port: 8080,
       strictPort: true, // garante que não troca a porta automaticamente
     },
