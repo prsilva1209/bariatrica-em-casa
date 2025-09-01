@@ -131,6 +131,7 @@ export type Database = {
           image_url: string | null
           instructions: string
           plan_id: string | null
+          target_audience: Database["public"]["Enums"]["goal_type"] | null
           title: string
           updated_at: string
           youtube_video_id: string | null
@@ -147,6 +148,7 @@ export type Database = {
           image_url?: string | null
           instructions: string
           plan_id?: string | null
+          target_audience?: Database["public"]["Enums"]["goal_type"] | null
           title: string
           updated_at?: string
           youtube_video_id?: string | null
@@ -163,6 +165,7 @@ export type Database = {
           image_url?: string | null
           instructions?: string
           plan_id?: string | null
+          target_audience?: Database["public"]["Enums"]["goal_type"] | null
           title?: string
           updated_at?: string
           youtube_video_id?: string | null
@@ -296,7 +299,11 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
+          difficulty_level:
+            | Database["public"]["Enums"]["difficulty_level"]
+            | null
           id: string
+          target_audience: Database["public"]["Enums"]["goal_type"] | null
           title: string
           updated_at: string
         }
@@ -304,7 +311,11 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          difficulty_level?:
+            | Database["public"]["Enums"]["difficulty_level"]
+            | null
           id?: string
+          target_audience?: Database["public"]["Enums"]["goal_type"] | null
           title: string
           updated_at?: string
         }
@@ -312,7 +323,11 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          difficulty_level?:
+            | Database["public"]["Enums"]["difficulty_level"]
+            | null
           id?: string
+          target_audience?: Database["public"]["Enums"]["goal_type"] | null
           title?: string
           updated_at?: string
         }
@@ -344,7 +359,11 @@ export type Database = {
     Enums: {
       app_role: "admin" | "moderator" | "user" | "instrutor"
       difficulty_level: "leve" | "medio" | "pesado"
-      goal_type: "maintain_weight" | "lose_weight" | "bariatric_prep"
+      goal_type:
+        | "maintain_weight"
+        | "lose_weight"
+        | "bariatric_prep"
+        | "bariatric_indicated"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -474,7 +493,12 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "moderator", "user", "instrutor"],
       difficulty_level: ["leve", "medio", "pesado"],
-      goal_type: ["maintain_weight", "lose_weight", "bariatric_prep"],
+      goal_type: [
+        "maintain_weight",
+        "lose_weight",
+        "bariatric_prep",
+        "bariatric_indicated",
+      ],
     },
   },
 } as const

@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
+import { UpdateMeasurementsModal } from "@/components/UpdateMeasurementsModal";
 import confetti from 'canvas-confetti';
 import { 
   ArrowLeft, 
@@ -44,7 +45,8 @@ const ExerciseDay = () => {
   const [completions, setCompletions] = useState<ExerciseCompletion[]>([]);
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState<string | null>(null);
-  const [showCelebration, setShowCelebration] = useState(false);
+  const [showMeasurementsModal, setShowMeasurementsModal] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const [userPreferredDifficulty, setUserPreferredDifficulty] = useState<'leve' | 'medio' | 'pesado'>('medio');
   
   const { user } = useAuth();
@@ -67,34 +69,65 @@ const ExerciseDay = () => {
 
   const loadDayData = async () => {
     try {
-      // Load user's preferred difficulty
+      // Load user's profile for target audience and difficulty
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('preferred_difficulty')
+        .select('*')
         .eq('user_id', user?.id)
         .single();
 
+      if (profileError) throw profileError;
+      
+      setUserProfile(profileData);
       const preferredDifficulty = profileData?.preferred_difficulty || 'medio';
       setUserPreferredDifficulty(preferredDifficulty);
 
-      // Load exercises for the day with preferred difficulty first, then fallback
+      // Load exercises for the day prioritizing user's target audience first
       let { data: exercisesData, error: exercisesError } = await supabase
         .from('exercises')
         .select('*')
         .eq('day_number', dayNumber)
+        .eq('target_audience', profileData.goal_type)
         .eq('difficulty_level', preferredDifficulty)
         .order('exercise_order');
 
-      // If no exercises found for preferred difficulty, load any difficulty
+      // If no exercises found for target audience + difficulty, try target audience only
       if (!exercisesData || exercisesData.length === 0) {
-        const { data: fallbackData, error: fallbackError } = await supabase
+        const { data: fallbackData1, error: fallbackError1 } = await supabase
+          .from('exercises')
+          .select('*')
+          .eq('day_number', dayNumber)
+          .eq('target_audience', profileData.goal_type)
+          .order('exercise_order');
+        
+        if (fallbackError1) throw fallbackError1;
+        exercisesData = fallbackData1;
+      }
+
+      // If still no exercises, try preferred difficulty without target audience
+      if (!exercisesData || exercisesData.length === 0) {
+        const { data: fallbackData2, error: fallbackError2 } = await supabase
+          .from('exercises')
+          .select('*')
+          .eq('day_number', dayNumber)
+          .eq('difficulty_level', preferredDifficulty)
+          .is('target_audience', null)
+          .order('exercise_order');
+        
+        if (fallbackError2) throw fallbackError2;
+        exercisesData = fallbackData2;
+      }
+
+      // Final fallback: any exercises for this day
+      if (!exercisesData || exercisesData.length === 0) {
+        const { data: fallbackData3, error: fallbackError3 } = await supabase
           .from('exercises')
           .select('*')
           .eq('day_number', dayNumber)
           .order('exercise_order');
         
-        if (fallbackError) throw fallbackError;
-        exercisesData = fallbackData;
+        if (fallbackError3) throw fallbackError3;
+        exercisesData = fallbackData3;
       }
 
       if (exercisesError) throw exercisesError;
@@ -216,15 +249,20 @@ const ExerciseDay = () => {
 
         if (progressError) console.error('Erro ao atualizar progresso:', progressError);
 
-        setShowCelebration(true);
         triggerCelebration();
         
-        setTimeout(() => {
-          toast({
-            title: "🎉 PARABÉNS! DIA COMPLETO! 🎉",
-            description: "Você completou todos os exercícios do dia! Que conquista incrível!",
-          });
-        }, 1000);
+        toast({
+          title: "🎉 PARABÉNS! DIA COMPLETO! 🎉",
+          description: "Você completou todos os exercícios do dia! Que conquista incrível!",
+          duration: 2000,
+        });
+
+        // Se completou 30 dias, mostrar modal de atualização de medidas
+        if (dayNumber === 30) {
+          setTimeout(() => {
+            setShowMeasurementsModal(true);
+          }, 2500);
+        }
       } else {
         // Update partial progress
         const { error: progressError } = await supabase
@@ -476,25 +514,14 @@ const ExerciseDay = () => {
           })}
         </div>
 
-        {/* Day completion celebration */}
-        {showCelebration && (
-          <Card className="shadow-celebration border-0 bg-gradient-celebration text-white animate-bounce">
-            <CardContent className="p-8 text-center">
-              <div className="text-6xl mb-4">🎉</div>
-              <h2 className="text-2xl font-bold mb-2">PARABÉNS!</h2>
-              <p className="text-lg mb-4">
-                Você completou todos os exercícios do Dia {dayNumber}!
-              </p>
-              <div className="flex justify-center gap-2 text-4xl">
-                <Trophy className="w-10 h-10" />
-                <Heart className="w-10 h-10" />
-                <Star className="w-10 h-10" />
-              </div>
-              <p className="mt-4 text-white/90">
-                Sua dedicação está transformando sua vida! Continue assim! ✨
-              </p>
-            </CardContent>
-          </Card>
+        {/* Modal de atualização de medidas */}
+        {showMeasurementsModal && userProfile && (
+          <UpdateMeasurementsModal
+            isOpen={showMeasurementsModal}
+            onClose={() => setShowMeasurementsModal(false)}
+            currentWeight={userProfile.weight}
+            currentHeight={userProfile.height}
+          />
         )}
 
         {/* Next day button */}

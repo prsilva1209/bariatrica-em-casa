@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Edit, Trash2, Save, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -13,6 +14,8 @@ interface WorkoutPlan {
   id: string;
   title: string;
   description: string;
+  target_audience: string;
+  difficulty_level: string;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -26,6 +29,8 @@ const PlanManagement = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    target_audience: 'lose_weight' as const,
+    difficulty_level: 'medio' as const,
   });
   
   const { toast } = useToast();
@@ -74,6 +79,8 @@ const PlanManagement = () => {
           .update({
             title: formData.title,
             description: formData.description,
+            target_audience: formData.target_audience,
+            difficulty_level: formData.difficulty_level,
           })
           .eq('id', editing);
 
@@ -98,6 +105,8 @@ const PlanManagement = () => {
           .insert({
             title: formData.title,
             description: formData.description,
+            target_audience: formData.target_audience,
+            difficulty_level: formData.difficulty_level,
             created_by: user?.id,
           })
           .select()
@@ -135,6 +144,8 @@ const PlanManagement = () => {
     setFormData({
       title: plan.title,
       description: plan.description || '',
+      target_audience: plan.target_audience as any,
+      difficulty_level: plan.difficulty_level as any,
     });
     setEditing(plan.id);
     setShowAddForm(true);
@@ -178,7 +189,12 @@ const PlanManagement = () => {
   };
 
   const resetForm = () => {
-    setFormData({ title: '', description: '' });
+    setFormData({
+      title: '',
+      description: '',
+      target_audience: 'lose_weight' as const,
+      difficulty_level: 'medio' as const,
+    });
     setEditing(null);
     setShowAddForm(false);
   };
@@ -239,6 +255,40 @@ const PlanManagement = () => {
                 rows={3}
               />
             </div>
+            
+            <div>
+              <Label htmlFor="target-audience">Público-alvo *</Label>
+              <Select 
+                value={formData.target_audience} 
+                onValueChange={(value) => setFormData({ ...formData, target_audience: value as any })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o público-alvo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="lose_weight">Pré-bariátrica (perder peso)</SelectItem>
+                  <SelectItem value="bariatric_indicated">Bariátrica indicada (IMC alto)</SelectItem>
+                  <SelectItem value="maintain_weight">Sobrepeso leve (manutenção)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="difficulty-level">Dificuldade *</Label>
+              <Select 
+                value={formData.difficulty_level} 
+                onValueChange={(value) => setFormData({ ...formData, difficulty_level: value as any })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a dificuldade" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="facil">Fácil</SelectItem>
+                  <SelectItem value="medio">Médio</SelectItem>
+                  <SelectItem value="dificil">Difícil</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
             <div className="flex gap-2">
               <Button onClick={handleSave}>
@@ -282,6 +332,17 @@ const PlanManagement = () => {
                         {plan.description}
                       </p>
                     )}
+                    <div className="flex gap-2 text-xs mt-2">
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                        {plan.target_audience === 'lose_weight' ? 'Pré-bariátrica' : 
+                         plan.target_audience === 'bariatric_indicated' ? 'Bariátrica indicada' : 
+                         'Sobrepeso leve'}
+                      </span>
+                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded">
+                        {plan.difficulty_level === 'facil' ? 'Fácil' : 
+                         plan.difficulty_level === 'medio' ? 'Médio' : 'Difícil'}
+                      </span>
+                    </div>
                     <p className="text-xs text-muted-foreground mt-2">
                       Criado em {new Date(plan.created_at).toLocaleDateString('pt-BR')}
                     </p>

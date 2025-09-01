@@ -42,6 +42,7 @@ const ExerciseManagement = () => {
     duration_minutes: 10,
     instructions: '',
     difficulty_level: 'medio' as 'leve' | 'medio' | 'pesado',
+    target_audience: 'lose_weight' as const,
     calories_estimate: 50,
     youtube_video_id: '',
     image_url: '',
@@ -95,6 +96,7 @@ const ExerciseManagement = () => {
       duration_minutes: 10,
       instructions: '',
       difficulty_level: 'medio' as 'leve' | 'medio' | 'pesado',
+      target_audience: 'lose_weight' as const,
       calories_estimate: 50,
       youtube_video_id: '',
       image_url: '',
@@ -112,6 +114,7 @@ const ExerciseManagement = () => {
         exercise_order: isEditing ? exercise.exercise_order : nextOrder,
         youtube_video_id: formData.youtube_video_id || null,
         image_url: formData.image_url || null,
+        target_audience: formData.target_audience || null,
       };
 
       if (isEditing) {
@@ -154,6 +157,7 @@ const ExerciseManagement = () => {
       duration_minutes: exercise.duration_minutes,
       instructions: exercise.instructions,
       difficulty_level: exercise.difficulty_level,
+      target_audience: (exercise as any).target_audience || 'lose_weight',
       calories_estimate: exercise.calories_estimate,
       youtube_video_id: exercise.youtube_video_id || '',
       image_url: exercise.image_url || '',
@@ -287,6 +291,23 @@ const ExerciseManagement = () => {
                     <SelectItem value="leve">Leve</SelectItem>
                     <SelectItem value="medio">Médio</SelectItem>
                     <SelectItem value="pesado">Pesado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="target-audience">Público-alvo</Label>
+                <Select 
+                  value={formData.target_audience} 
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, target_audience: value as any }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o público-alvo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="lose_weight">Pré-bariátrica (perder peso)</SelectItem>
+                    <SelectItem value="bariatric_indicated">Bariátrica indicada (IMC alto)</SelectItem>
+                    <SelectItem value="maintain_weight">Sobrepeso leve (manutenção)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
