@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => {
       // Permite que este host específico acesse o servidor
       allowedHosts: ["bariatrica-bariatricaemcasa.zn6b4j.easypanel.host",
                     "bariatricaemcasa.com.br",
-                    "www,bariatricaemcasa.com.br",
+                    "www.bariatricaemcasa.com.br",
                     ],
     },
     plugins: [
