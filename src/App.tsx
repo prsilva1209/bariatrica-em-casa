@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "./components/AuthProvider";
 import AdminRoute from "./components/AdminRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import ExerciseDay from "./pages/ExerciseDay";
@@ -87,6 +88,10 @@ const App = () => (
                   <Auth />
                 </PublicRoute>
               } 
+            />
+            <Route 
+              path="/reset-password" 
+              element={<ResetPassword />} 
             />
             <Route 
               path="/onboarding" 
