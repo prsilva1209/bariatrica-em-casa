@@ -72,7 +72,7 @@ const Login = () => {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset`,
+        redirectTo: "https://bariatricaemcasa.com.br/reset",
       });
 
       if (error) throw error;
