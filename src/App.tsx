@@ -8,6 +8,8 @@ import { AuthProvider, useAuth } from "./components/AuthProvider";
 import AdminRoute from "./components/AdminRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Login from "./pages/Login";
+import Reset from "./pages/Reset";
 import ResetPassword from "./pages/ResetPassword";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
@@ -88,6 +90,18 @@ const App = () => (
                   <Auth />
                 </PublicRoute>
               } 
+            />
+            <Route 
+              path="/login" 
+              element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              } 
+            />
+            <Route 
+              path="/reset" 
+              element={<Reset />} 
             />
             <Route 
               path="/reset-password" 
