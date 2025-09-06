@@ -132,7 +132,7 @@ const Auth = () => {
             <Heart className="w-8 h-8 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-semibold text-foreground">Seu Caminho Magro</h1>
+            <h1 className="text-3xl font-semibold text-foreground">Acessar conta</h1>
             <p className="text-muted-foreground">Comece sua jornada de bem-estar hoje</p>
           </div>
         </div>
