@@ -19,9 +19,9 @@ const Index = () => {
               <p className="text-xs text-muted-foreground">Programa de 30 dias</p>
             </div>
           </div>
-          <Link to="/auth">
+          <Link to="/login">
             <Button className="bg-gradient-primary">
-              Começar Agora
+              Fazer Login
             </Button>
           </Link>
         </div>
@@ -41,12 +41,16 @@ const Index = () => {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link to="/auth">
+            <a 
+              href="https://pay.kiwify.com.br/tpg8ete" 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
               <Button size="lg" className="bg-gradient-primary text-lg px-8 py-4">
                 Começar Minha Jornada
                 <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
-            </Link>
+            </a>
           </div>
 
           <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground mt-8">
@@ -174,12 +178,16 @@ const Index = () => {
             Comece hoje mesmo sua jornada de 30 dias rumo ao bem-estar. 
             Cada passo importa, e estamos aqui para apoiar você.
           </p>
-          <Link to="/auth">
+          <a 
+            href="https://pay.kiwify.com.br/tpg8ete" 
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
             <Button size="lg" className="bg-gradient-primary text-lg px-8 py-4">
-              Começar Agora - É Gratuito
+              Começar Agora
               <Heart className="w-5 h-5 ml-2" />
             </Button>
-          </Link>
+          </a>
         </div>
       </section>
 
