@@ -134,5 +134,47 @@ Cores suaves, gradientes acolhedores e tipografia amigável
 
   body {
     @apply bg-background text-foreground;
+    /* WebView Optimizations */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+    touch-action: manipulation;
+  }
+  
+  /* PWA Optimizations */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Safe area support for iOS devices with notch */
+  @supports (padding: max(0px)) {
+    body {
+      padding-left: max(12px, env(safe-area-inset-left));
+      padding-right: max(12px, env(safe-area-inset-right));
+    }
+  }
+  
+  /* Standalone mode detection */
+  @media all and (display-mode: standalone) {
+    body {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
+  
+  /* Prevent text selection where not needed */
+  button, 
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  /* Input elements should allow selection */
+  input, 
+  textarea, 
+  [contenteditable="true"] {
+    -webkit-user-select: text;
+    user-select: text;
   }
 }
