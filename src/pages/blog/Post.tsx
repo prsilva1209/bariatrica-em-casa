@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, Calendar, User, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import Sidebar from '@/components/Sidebar'; // <-- Importe o novo componente
+import Sidebar from '@/components/Sidebar';
 
 interface BlogPost {
   title: string;
@@ -81,10 +81,8 @@ const BlogPostPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-soft">
-      <div className="max-w-6xl mx-auto p-4 py-8">
-        {/* Adicione um contêiner flexível para o layout de duas colunas */}
+      <div className="container mx-auto p-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] gap-8">
-          {/* Coluna Principal do Post */}
           <div>
             <div className="mb-6">
               <Link to="/blog" className="text-sm text-muted-foreground flex items-center gap-1 hover:underline">
@@ -110,7 +108,6 @@ const BlogPostPage = () => {
             </Card>
           </div>
 
-          {/* Coluna da Sidebar */}
           <aside className="hidden md:block">
             <Sidebar />
           </aside>
