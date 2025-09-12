@@ -8,8 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Calendar, Eye, Home, FileText } from 'lucide-react';
-import { supabase } from '@/lib/supabase'; // ajuste o path conforme seu projeto
-
+import { supabase } from '@/integrations/supabase/client';
 const Button = ({
   children,
   to,
