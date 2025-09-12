@@ -58,20 +58,23 @@ const BlogPostPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-soft flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="text-muted-foreground ml-4">Carregando post...</p>
+      <div className="min-h-screen bg-gradient-soft flex flex-col items-center justify-center gap-4 px-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-lg text-muted-foreground font-medium">Carregando post...</p>
       </div>
     );
   }
 
   if (!post) {
     return (
-      <div className="min-h-screen bg-gradient-soft flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Post não encontrado</h1>
-          <p className="text-muted-foreground">O post que você está procurando não existe ou houve um erro.</p>
-          <Link to="/blog" className="text-primary hover:underline mt-4 block">
+      <div className="min-h-screen bg-gradient-soft flex flex-col items-center justify-center px-6">
+        <div className="max-w-md text-center">
+          <h1 className="text-3xl font-extrabold mb-6 text-gray-900 dark:text-gray-100">Post não encontrado</h1>
+          <p className="text-base text-muted-foreground mb-8">O post que você está procurando não existe ou houve um erro.</p>
+          <Link
+            to="/blog"
+            className="inline-block px-6 py-3 bg-primary text-white font-semibold rounded-lg shadow-md hover:bg-primary-dark transition-colors"
+          >
             Voltar para o blog
           </Link>
         </div>
@@ -80,33 +83,42 @@ const BlogPostPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-soft">
-      <div className="container mx-auto p-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] gap-8">
-          <div>
-            <div className="mb-6">
-              <Link to="/blog" className="text-sm text-muted-foreground flex items-center gap-1 hover:underline">
-                <ChevronLeft className="w-4 h-4" />
-                Voltar para o blog
-              </Link>
-            </div>
-            <Card className="shadow-soft border-0">
-              <CardContent className="p-6">
-                <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4 text-primary" />
-                    <span>{new Date(post.created_at).toLocaleDateString('pt-BR')}</span>
+    <div className="min-h-screen bg-gradient-soft py-12">
+      <div className="container mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-12">
+          <main>
+            <Link
+              to="/blog"
+              className="inline-flex items-center space-x-2 text-primary font-medium hover:underline mb-8"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              <span>Voltar para o blog</span>
+            </Link>
+
+            <Card className="shadow-lg border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 transition-shadow hover:shadow-2xl">
+              <CardContent className="p-8">
+                <h1 className="text-4xl font-extrabold mb-4 leading-tight text-gray-900 dark:text-gray-100">
+                  {post.title}
+                </h1>
+                <div className="flex flex-wrap gap-6 text-sm text-muted-foreground mb-8">
+                  <div className="flex items-center gap-2 text-primary">
+                    <Calendar className="w-5 h-5" />
+                    <time dateTime={new Date(post.created_at).toISOString()} className="font-semibold">
+                      {new Date(post.created_at).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </time>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <User className="w-4 h-4 text-primary" />
-                    <span>Por {post.author}</span>
+                  <div className="flex items-center gap-2 text-primary">
+                    <User className="w-5 h-5" />
+                    <span className="font-semibold">Por {post.author}</span>
                   </div>
                 </div>
-                <div dangerouslySetInnerHTML={{ __html: post.content }} />
+                <article
+                  className="prose prose-lg max-w-none text-gray-800 dark:text-gray-300"
+                  dangerouslySetInnerHTML={{ __html: post.content }}
+                />
               </CardContent>
             </Card>
-          </div>
+          </main>
 
           <aside className="hidden md:block">
             <Sidebar />
