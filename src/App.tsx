@@ -16,6 +16,11 @@ import Dashboard from "./pages/Dashboard";
 import ExerciseDay from "./pages/ExerciseDay";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+import BlogList from "./pages/blog/index"; // Importe a página principal do blog
+import BlogPost1 from "./pages/blog/o-guia-do-iniciante"; // Importe o primeiro artigo
+import BlogPost2 from "./pages/blog/superando-a-obesidade-com-cuidado"; // Importe o segundo artigo
+import BlogPost3 from "./pages/blog/nao-pude-fazer-bariatrica"; // Importe o terceiro artigo
+import BlogPost4 from "./pages/blog/saindo-do-sedentarismo"; // Importe o quarto artigo
 
 const queryClient = new QueryClient();
 
@@ -140,6 +145,13 @@ const App = () => (
                 </AdminRoute>
               } 
             />
+            {/* INÍCIO: ADICIONE AS ROTAS DO BLOG AQUI */}
+            <Route path="/blog" element={<BlogList />} />
+            <Route path="/blog/o-guia-do-iniciante" element={<BlogPost1 />} />
+            <Route path="/blog/superando-a-obesidade-com-cuidado" element={<BlogPost2 />} />
+            <Route path="/blog/nao-pude-fazer-bariatrica" element={<BlogPost3 />} />
+            <Route path="/blog/saindo-do-sedentarismo" element={<BlogPost4 />} />
+            {/* FIM: ROTAS DO BLOG */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
