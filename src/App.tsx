@@ -16,8 +16,8 @@ import Dashboard from "./pages/Dashboard";
 import ExerciseDay from "./pages/ExerciseDay";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
-import BlogList from "./pages/blog/index"; // Importe a página principal do blog
-import BlogPost1 from "./pages/blog/o-guia-do-iniciante"; // Importe o primeiro artigo
+import BlogList from "./pages/blog/index"; // Mantém a página de listagem
+import BlogPostPage from "./pages/blog/Post"; // Importa a nova página dinâmica
 
 const queryClient = new QueryClient();
 
@@ -142,10 +142,10 @@ const App = () => (
                 </AdminRoute>
               } 
             />
-            {/* INÍCIO: ADICIONE AS ROTAS DO BLOG AQUI */}
+            {/* INÍCIO: NOVAS ROTAS DINÂMICAS DO BLOG */}
             <Route path="/blog" element={<BlogList />} />
-            <Route path="/blog/o-guia-do-iniciante" element={<BlogPost1 />} />
-            {/* FIM: ROTAS DO BLOG */}
+            <Route path="/blog/:slug" element={<BlogPostPage />} />
+            {/* FIM: NOVAS ROTAS DINÂMICAS DO BLOG */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
