@@ -21,7 +21,7 @@ const Sidebar = () => {
           .from('blog_posts')
           .select('title, slug')
           .order('created_at', { ascending: false })
-          .limit(5); // Limita a 5 posts para não sobrecarregar a barra lateral
+          .limit(5);
 
         if (error) {
           throw error;
@@ -40,26 +40,40 @@ const Sidebar = () => {
     fetchPosts();
   }, [location.pathname]);
 
+  // Extrai o slug atual para destacar o item ativo
+  const currentSlug = location.pathname.split('/').pop();
+
   return (
-    <Card className="shadow-soft border-0 sticky top-4">
+    <Card className="sticky top-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 transition-shadow">
       <CardContent className="p-6">
-        <h3 className="text-xl font-bold mb-4 border-b pb-2">Posts Recentes</h3>
+        <h3 className="text-xl font-extrabold mb-5 border-b border-gray-300 dark:border-gray-600 pb-3 text-gray-900 dark:text-gray-100">
+          Posts Recentes
+        </h3>
+
         {loading ? (
-          <div className="flex items-center justify-center py-4">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <div className="flex items-center justify-center py-6">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : (
-          <ul className="space-y-4">
-            {posts.map((post) => (
-              <li key={post.slug}>
-                <Link
-                  to={`/blog/${post.slug}`}
-                  className="block text-primary-foreground hover:text-primary transition-colors font-semibold"
-                >
-                  {post.title}
-                </Link>
-              </li>
-            ))}
+          <ul className="space-y-5">
+            {posts.map((post) => {
+              const isActive = currentSlug === post.slug;
+              return (
+                <li key={post.slug}>
+                  <Link
+                    to={`/blog/${post.slug}`}
+                    className={`block px-3 py-2 rounded-md font-semibold transition-colors ${
+                      isActive
+                        ? 'bg-primary text-white shadow-md'
+                        : 'text-primary hover:bg-primary hover:text-white'
+                    }`}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    {post.title}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         )}
       </CardContent>
