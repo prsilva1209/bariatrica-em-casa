@@ -49,7 +49,7 @@ const BlogPage = () => {
         // Busca posts ordenados pela data criada, do mais recente ao mais antigo
         const { data, error } = await supabase
           .from<BlogPost>('blog_posts')
-          .select('id, title, slug, excerpt, created_at, views')
+          .select('id, title, slug, excerpt, created_at')
           .order('created_at', { ascending: false });
 
         if (error) throw error;
