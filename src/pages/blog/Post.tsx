@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, Calendar, User, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import Sidebar from '@/components/Sidebar'; // <-- Importe o novo componente
 
 interface BlogPost {
   title: string;
@@ -37,7 +38,7 @@ const BlogPostPage = () => {
         if (data && data.length > 0) {
           setPost(data[0]);
         } else {
-          setPost(null); // Explicitamente define como nulo se não encontrar
+          setPost(null);
         }
 
       } catch (error: any) {
@@ -46,7 +47,7 @@ const BlogPostPage = () => {
           description: error.message,
           variant: "destructive",
         });
-        setPost(null); // Em caso de erro, define como nulo
+        setPost(null);
       } finally {
         setLoading(false);
       }
@@ -80,30 +81,40 @@ const BlogPostPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-soft">
-      <div className="max-w-4xl mx-auto p-4 py-8">
-        <div className="mb-6">
-          <Link to="/blog" className="text-sm text-muted-foreground flex items-center gap-1 hover:underline">
-            <ChevronLeft className="w-4 h-4" />
-            Voltar para o blog
-          </Link>
-        </div>
-        <Card className="shadow-soft border-0">
-          <CardContent className="p-6">
-            <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
-              <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4 text-primary" />
-                <span>{new Date(post.created_at).toLocaleDateString('pt-BR')}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <User className="w-4 h-4 text-primary" />
-                <span>Por {post.author}</span>
-              </div>
+      <div className="max-w-6xl mx-auto p-4 py-8">
+        {/* Adicione um contêiner flexível para o layout de duas colunas */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] gap-8">
+          {/* Coluna Principal do Post */}
+          <div>
+            <div className="mb-6">
+              <Link to="/blog" className="text-sm text-muted-foreground flex items-center gap-1 hover:underline">
+                <ChevronLeft className="w-4 h-4" />
+                Voltar para o blog
+              </Link>
             </div>
-            {/* O conteúdo do post será renderizado aqui */}
-            <div dangerouslySetInnerHTML={{ __html: post.content }} />
-          </CardContent>
-        </Card>
+            <Card className="shadow-soft border-0">
+              <CardContent className="p-6">
+                <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4 text-primary" />
+                    <span>{new Date(post.created_at).toLocaleDateString('pt-BR')}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <User className="w-4 h-4 text-primary" />
+                    <span>Por {post.author}</span>
+                  </div>
+                </div>
+                <div dangerouslySetInnerHTML={{ __html: post.content }} />
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Coluna da Sidebar */}
+          <aside className="hidden md:block">
+            <Sidebar />
+          </aside>
+        </div>
       </div>
     </div>
   );
