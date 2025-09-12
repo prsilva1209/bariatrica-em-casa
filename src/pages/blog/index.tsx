@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Card,
@@ -8,8 +8,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Calendar, Eye, Home, FileText } from 'lucide-react';
+import { supabase } from '@/lib/supabase'; // ajuste o path conforme seu projeto
 
-// Botão estilizado para Lovable - você pode importar se existir
 const Button = ({
   children,
   to,
@@ -27,37 +27,61 @@ const Button = ({
   </Link>
 );
 
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  created_at: string;
+  views?: number | null; // caso não tenha esse campo, pode usar 0
+}
+
 const BlogPage = () => {
   const location = useLocation();
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const blogPosts = [
-    {
-      title: 'O Guia do Iniciante: Dando o Primeiro Passo no Emagrecimento',
-      slug: 'o-guia-do-iniciante',
-      excerpt:
-        'Se você tem vergonha da academia e quer começar a se exercitar em casa, este é o guia perfeito para você. Saiba como iniciar sua jornada com segurança e confiança, focando em exercícios de baixo impacto e na sua saúde mental.',
-      date: '12 de Setembro de 2025',
-      views: '1.200',
-    },
-    {
-      title: 'Exercícios para Quem Tem Diabetes e Precisa Emagrecer',
-      slug: 'exercicios-para-quem-tem-diabetes',
-      excerpt:
-        'A atividade física é uma poderosa aliada no controle do diabetes. Descubra como a nossa abordagem focada em saúde pode te ajudar a gerenciar a glicemia e a melhorar sua qualidade de vida, mesmo com as comorbidades.',
-      date: '05 de Setembro de 2025',
-      views: '850',
-    },
-    {
-      title: 'Desafio Bariátrica em Casa: O Caminho para quem não é candidato à cirurgia',
-      slug: 'o-caminho-sem-cirurgia',
-      excerpt:
-        'A cirurgia bariátrica não é a única solução. Nosso programa oferece um caminho seguro e eficaz para alcançar a perda de peso e o bem-estar, com o apoio de profissionais, tudo no conforto do seu lar.',
-      date: '28 de Agosto de 2025',
-      views: '2.500',
-    },
-  ];
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Busca posts ordenados pela data criada, do mais recente ao mais antigo
+        const { data, error } = await supabase
+          .from<BlogPost>('blog_posts')
+          .select('id, title, slug, excerpt, created_at, views')
+          .order('created_at', { ascending: false });
 
-  // Menu simples com destaque para página atual
+        if (error) throw error;
+        if (data) {
+          setBlogPosts(data);
+        }
+      } catch (err) {
+        // Melhore o tratamento de erro conforme precise
+        setError('Erro ao carregar os posts. Tente novamente mais tarde.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  // Formata data para exibir tipo "12 de Setembro de 2025"
+  const formatDate = (dateString: string) => {
+    try {
+      return new Intl.DateTimeFormat('pt-BR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      }).format(new Date(dateString));
+    } catch {
+      return dateString;
+    }
+  };
+
   const menuItems = [
     {
       label: 'Home',
@@ -69,7 +93,6 @@ const BlogPage = () => {
       to: '/blog',
       icon: <FileText className="w-5 h-5 mr-2" />,
     },
-    // Pode adicionar mais itens aqui
   ];
 
   return (
@@ -105,7 +128,7 @@ const BlogPage = () => {
       </nav>
 
       {/* Conteúdo principal */}
-      <div className="max-w-5xl mx-auto px-6 pt-24 pb-16">
+      <main className="max-w-5xl mx-auto px-6 pt-24 pb-16">
         {/* Header do Blog */}
         <header className="mb-10 text-center">
           <h2 className="text-4xl font-extrabold mb-3 text-gray-900 dark:text-gray-100">
@@ -116,43 +139,57 @@ const BlogPage = () => {
           </p>
         </header>
 
+        {/* Loading/Error */}
+        {loading && (
+          <p className="text-center text-primary font-semibold">Carregando posts...</p>
+        )}
+        {error && <p className="text-center text-red-600 font-semibold">{error}</p>}
+
         {/* Lista de Posts */}
-        <div className="space-y-8">
-          {blogPosts.map((post) => (
-            <Card
-              key={post.slug}
-              className="shadow-lg border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 transition-shadow hover:shadow-2xl"
-            >
-              <CardHeader className="pb-3">
-                <CardTitle className="text-2xl font-extrabold leading-tight">
-                  <Link
-                    to={`/blog/${post.slug}`}
-                    className="hover:underline text-gray-900 dark:text-gray-100"
-                  >
-                    {post.title}
-                  </Link>
-                </CardTitle>
-                <CardDescription className="flex flex-wrap gap-5 text-sm text-muted-foreground mt-2">
-                  <div className="flex items-center gap-2 text-primary">
-                    <Calendar className="w-4 h-4" />
-                    <time>{post.date}</time>
+        {!loading && !error && (
+          <div className="space-y-8">
+            {blogPosts.length === 0 && (
+              <p className="text-center text-muted-foreground">
+                Nenhum post encontrado.
+              </p>
+            )}
+
+            {blogPosts.map((post) => (
+              <Card
+                key={post.id}
+                className="shadow-lg border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 transition-shadow hover:shadow-2xl"
+              >
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-2xl font-extrabold leading-tight">
+                    <Link
+                      to={`/blog/${post.slug}`}
+                      className="hover:underline text-gray-900 dark:text-gray-100"
+                    >
+                      {post.title}
+                    </Link>
+                  </CardTitle>
+                  <CardDescription className="flex flex-wrap gap-5 text-sm text-muted-foreground mt-2">
+                    <div className="flex items-center gap-2 text-primary">
+                      <Calendar className="w-4 h-4" />
+                      <time>{formatDate(post.created_at)}</time>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Eye className="w-4 h-4 text-muted-foreground" />
+                      <span>{post.views ?? 0} visualizações</span>
+                    </div>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-base text-muted-foreground">{post.excerpt}</p>
+                  <div className="mt-5 flex justify-end">
+                    <Button to={`/blog/${post.slug}`}>Ler mais &rarr;</Button>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Eye className="w-4 h-4 text-muted-foreground" />
-                    <span>{post.views} visualizações</span>
-                  </div>
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-base text-muted-foreground">{post.excerpt}</p>
-                <div className="mt-5 flex justify-end">
-                  <Button to={`/blog/${post.slug}`}>Ler mais &rarr;</Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   );
 };
