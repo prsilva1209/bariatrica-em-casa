@@ -28,20 +28,25 @@ const BlogPostPage = () => {
         const { data, error } = await supabase
           .from('blog_posts')
           .select('title, content, author, created_at')
-          .eq('slug', slug)
-          .single();
+          .eq('slug', slug);
 
         if (error) {
           throw error;
         }
 
-        setPost(data);
+        if (data && data.length > 0) {
+          setPost(data[0]);
+        } else {
+          setPost(null); // Explicitamente define como nulo se não encontrar
+        }
+
       } catch (error: any) {
         toast({
           title: "Erro ao carregar o post",
           description: error.message,
           variant: "destructive",
         });
+        setPost(null); // Em caso de erro, define como nulo
       } finally {
         setLoading(false);
       }
@@ -64,7 +69,7 @@ const BlogPostPage = () => {
       <div className="min-h-screen bg-gradient-soft flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Post não encontrado</h1>
-          <p className="text-muted-foreground">O post que você está procurando não existe.</p>
+          <p className="text-muted-foreground">O post que você está procurando não existe ou houve um erro.</p>
           <Link to="/blog" className="text-primary hover:underline mt-4 block">
             Voltar para o blog
           </Link>
