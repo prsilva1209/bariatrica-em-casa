@@ -36,7 +36,7 @@ const BlogPostPage = () => {
       try {
         const { data, error } = await supabase
           .from('blog_posts')
-          .select('title, content, author, created_at,images')
+          .select('title, content, author, created_at, images')
           .eq('slug', slug);
 
         if (error) {
