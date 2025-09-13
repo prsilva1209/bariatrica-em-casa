@@ -11,6 +11,14 @@ interface BlogPost {
   content: string;
   author: string;
   created_at: string;
+  images: Image[];
+}
+
+interface Image {
+  alt: string;
+  url: string;
+  caption: string;
+  position: string; // pode ser "top", "inline" etc
 }
 
 const BlogPostPage = () => {
@@ -28,7 +36,7 @@ const BlogPostPage = () => {
       try {
         const { data, error } = await supabase
           .from('blog_posts')
-          .select('title, content, author, created_at')
+          .select('title, content, author, created_at,images')
           .eq('slug', slug);
 
         if (error) {
